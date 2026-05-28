@@ -17,8 +17,38 @@ npm run format     # Prettier em todos os .ts/.tsx
 **Next.js 16 App Router** com **React 19**, **TypeScript**, **Tailwind CSS v4** e **shadcn/ui**.
 
 Estratégia de dados:
-- **SSR (Server Components)** para leitura de dados — fetch nas Server Actions/page.tsx com token JWT do cookie/header.
-- **TanStack Query** para mutações no cliente (criar, editar, deletar).
+- `apiFetch` funciona tanto no server quanto no client, mas a origem muda:
+  - **No server**: lê o cookie httpOnly e bate direto em `FINANCE_MANAGER_API_URL` (backend FastAPI).
+  - **No client**: bate em rota interna do Next (`/api/...`) que age como proxy/middleware — essa rota lê o cookie httpOnly e repassa pro backend com `Authorization: Bearer`. Sem essa rota intermediária, a chamada falha (cookie httpOnly inacessível do JS + CORS).
+  - Toda nova chamada client-side exige a rota Next correspondente criada antes.
+- **SSR (Server Components)** para leitura de dados — fetch nas Server Actions/page.tsx.
+- **TanStack Query** para mutações no cliente (criar, editar, deletar) — `mutationFn` chama `apiFetch("/api/v1/...")` na rota Next.
+- **TanStack Query para reads compartilhados/reativos** — quando o dado é consumido por vários componentes da mesma página OU precisa atualizar em toda a UI após uma mutation (ex: editar perfil → nome reflete na sidebar sem reload), use prefetch no Server Component + `HydrationBoundary` + `useQuery` no client. Para reads pontuais e estáticos (ex: usuário exibido no footer da sidebar), passe como prop direto do Server Component — evita hidratação e dispensa criar a rota proxy `/api/...`. Critério de migração: passou a existir mutation que invalida essa key → migra pra TanStack. Exemplo de referência (extraído de outro projeto — `queryKeys` e `PedalsService` aqui são placeholders; neste repo as estruturas equivalentes ainda não existem):
+  ```tsx
+  // page.tsx (Server Component)
+  const queryClient = new QueryClient()
+  await queryClient.prefetchQuery({
+    queryKey: queryKeys.pedals.lists(),
+    queryFn: PedalsService.getPedals,
+  })
+  return (
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <PedalsPageShell>
+        <PedalsTable />
+      </PedalsPageShell>
+    </HydrationBoundary>
+  )
+  ```
+  E a mutation correspondente no client, batendo na rota proxy do Next:
+  ```tsx
+  const createPedal = useMutation({
+    mutationFn: (input: CreatePedalRequest) =>
+      apiFetch("/api/v1/pedals", { method: "POST", body: input }),
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: queryKeys.pedals.all })
+    },
+  })
+  ```
 - `next-themes` já instalado; `ThemeProvider` em `components/theme-provider.tsx` envolve o layout. Atalho `d` alterna dark/light.
 
 Fontes: Inter (sans), Merriweather (serif), JetBrains Mono (mono) — variáveis CSS `--font-sans`, `--font-serif`, `--font-mono`.

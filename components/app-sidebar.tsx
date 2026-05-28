@@ -1,3 +1,5 @@
+"use client"
+
 import {
   Sidebar,
   SidebarContent,
@@ -5,8 +7,29 @@ import {
   SidebarGroup,
   SidebarHeader,
 } from "@/components/ui/sidebar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import { LogOut } from "lucide-react"
+import { logoutAction } from "@/lib/actions/auth"
+import type { User } from "@/types/user"
 
-export function AppSidebar() {
+type Props = {
+  user: User
+}
+
+function getInitials(name: string) {
+  const parts = name.trim().split(/\s+/)
+  if (parts.length === 1) return parts[0][0].toUpperCase()
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+}
+
+export function AppSidebar({ user }: Props) {
   return (
     <Sidebar>
       <SidebarHeader />
@@ -14,7 +37,41 @@ export function AppSidebar() {
         <SidebarGroup />
         <SidebarGroup />
       </SidebarContent>
-      <SidebarFooter />
+      <SidebarFooter>
+        <div className="flex items-center gap-3 px-3 py-3 border-t border-border/60">
+          <Avatar size="default" className="shrink-0 ring-2 ring-primary/20">
+            <AvatarFallback className="bg-primary/10 text-primary font-semibold text-sm">
+              {getInitials(user.name)}
+            </AvatarFallback>
+          </Avatar>
+
+          <div className="flex flex-col min-w-0 flex-1">
+            <span className="text-sm font-medium text-foreground truncate leading-tight">
+              {user.name}
+            </span>
+            <span className="text-xs text-muted-foreground truncate leading-tight">
+              {user.email}
+            </span>
+          </div>
+
+          <TooltipProvider delayDuration={300}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="shrink-0 size-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                  onClick={() => logoutAction()}
+                >
+                  <LogOut className="size-4" />
+                  <span className="sr-only">Sair</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="right">Sair</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+      </SidebarFooter>
     </Sidebar>
   )
 }
