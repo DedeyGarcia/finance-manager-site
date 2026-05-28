@@ -82,6 +82,13 @@ parcela_atual = diferença_meses(impact_start_date, period_start) + 1
 - **Receitas** (`/incomes`) — listagem com filtros por tipo (`one_time`, `recurring`)
 - **Configurações** (`/settings`) — dados da conta, categorias (read-only na V0)
 
+## Convenções de código
+
+- **Forms**: sempre usar **React Hook Form**. Nunca controlar estado de formulário com `useState`.
+- **Componentes**: priorizar componentes de biblioteca (shadcn/ui, Radix) antes de criar do zero.
+- **Fetch**: nunca usar `fetch` diretamente — sempre através do wrapper tipado do projeto (a ser criado em `lib/api/`). O wrapper receberá os tipos gerados em `docs/api.types.ts`.
+- Seguir DRY, KISS e YAGNI: sem abstrações prematuras, sem código para casos hipotéticos futuros.
+
 ## Tema CSS
 
 Tema customizado já definido em [app/globals.css](app/globals.css) com variáveis `oklch` (paleta roxa/azul). Não altere as variáveis de cor sem alinhamento explícito. O tema é aplicado via classe `.dark` no `<html>`, controlado por `next-themes`.
