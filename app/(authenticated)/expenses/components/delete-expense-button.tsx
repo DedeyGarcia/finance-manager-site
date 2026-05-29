@@ -35,7 +35,7 @@ export function DeleteExpenseButton({ expense }: { expense: ExpenseRead }) {
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Excluir "{expense.title}"?</AlertDialogTitle>
+          <AlertDialogTitle>Excluir &ldquo;{expense.title}&rdquo;?</AlertDialogTitle>
           <AlertDialogDescription>
             Esta ação não pode ser desfeita.
           </AlertDialogDescription>
