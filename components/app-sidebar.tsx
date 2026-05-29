@@ -5,7 +5,11 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
+  SidebarGroupContent,
   SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -15,13 +19,26 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { LogOut } from "lucide-react"
+import {
+  LayoutDashboardIcon,
+  LogOut,
+  TrendingDownIcon,
+  TrendingUpIcon,
+} from "lucide-react"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { logoutAction } from "@/lib/actions/auth"
 import type { User } from "@/types/user"
 
 type Props = {
   user: User
 }
+
+const navItems = [
+  { title: "Dashboard", href: "/dashboard", icon: LayoutDashboardIcon },
+  { title: "Gastos", href: "/expenses", icon: TrendingDownIcon },
+  { title: "Receitas", href: "/incomes", icon: TrendingUpIcon },
+]
 
 function getInitials(name: string) {
   const parts = name.trim().split(/\s+/)
@@ -30,12 +47,28 @@ function getInitials(name: string) {
 }
 
 export function AppSidebar({ user }: Props) {
+  const pathname = usePathname()
+
   return (
     <Sidebar>
       <SidebarHeader />
       <SidebarContent>
-        <SidebarGroup />
-        <SidebarGroup />
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {navItems.map((item) => (
+                <SidebarMenuItem key={item.href}>
+                  <SidebarMenuButton asChild isActive={pathname === item.href}>
+                    <Link href={item.href}>
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
         <div className="flex items-center gap-3 px-3 py-3 border-t border-border/60">
