@@ -58,7 +58,11 @@ export function AppSidebar({ user }: Props) {
             <SidebarMenu>
               {navItems.map((item) => (
                 <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton asChild isActive={pathname === item.href}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={pathname === item.href}
+                    className="rounded-lg border border-transparent bg-clip-padding font-medium transition-all hover:bg-primary/10 hover:text-primary active:translate-y-px data-active:bg-primary data-active:text-primary-foreground data-active:hover:bg-primary/90"
+                  >
                     <Link href={item.href}>
                       <item.icon />
                       <span>{item.title}</span>

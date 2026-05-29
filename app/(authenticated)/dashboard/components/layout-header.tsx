@@ -40,11 +40,11 @@ export default function LayoutHeader({ categories }: Props) {
         <DropdownMenuContent>
           <DropdownMenuGroup>
             <DropdownMenuLabel>O que deseja adicionar?</DropdownMenuLabel>
+            <DropdownMenuItem onSelect={() => setExpenseOpen(true)}>
+              Gasto
+            </DropdownMenuItem>
             <DropdownMenuItem onSelect={() => setIncomeOpen(true)}>
               Receita
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => setExpenseOpen(true)}>
-              Despesa
             </DropdownMenuItem>
           </DropdownMenuGroup>
         </DropdownMenuContent>

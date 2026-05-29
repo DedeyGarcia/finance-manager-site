@@ -48,7 +48,7 @@ export function ExpensesTable({ categories }: { categories: Category[] }) {
     <DataTable
       columns={columns}
       data={expenses}
-      emptyMessage="Nenhuma despesa cadastrada."
+      emptyMessage="Nenhum gasto cadastrado."
       toolbar={(table) => (
         <div className="flex flex-wrap items-center gap-2">
           <Input
@@ -61,7 +61,8 @@ export function ExpensesTable({ categories }: { categories: Category[] }) {
           />
           <Select
             value={
-              (table.getColumn("expense_type")?.getFilterValue() as string) ?? "all"
+              (table.getColumn("expense_type")?.getFilterValue() as string) ??
+              "all"
             }
             onValueChange={(value) =>
               table
@@ -88,7 +89,8 @@ export function ExpensesTable({ categories }: { categories: Category[] }) {
           </Select>
           <Select
             value={
-              (table.getColumn("category_id")?.getFilterValue() as string) ?? "all"
+              (table.getColumn("category_id")?.getFilterValue() as string) ??
+              "all"
             }
             onValueChange={(value) =>
               table
@@ -132,7 +134,7 @@ export function ExpensesTable({ categories }: { categories: Category[] }) {
         return (
           <TableRow>
             <TableCell colSpan={columns.length}>
-              Comprometido em {monthLabel}:{" "}
+              Total de gastos em {monthLabel}:{" "}
               <strong className="font-mono">{formatCurrency(total)}</strong>
             </TableCell>
           </TableRow>

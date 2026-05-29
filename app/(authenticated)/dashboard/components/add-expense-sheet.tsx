@@ -24,8 +24,8 @@ export default function AddExpenseSheet({
     <ResponsiveSheet
       open={open}
       onOpenChange={onOpenChange}
-      title="Adicionar Despesa"
-      description="Preencha os campos abaixo para adicionar uma despesa."
+      title="Adicionar Gasto"
+      description="Preencha os campos abaixo para adicionar um gasto."
       footer={
         <>
           <Button

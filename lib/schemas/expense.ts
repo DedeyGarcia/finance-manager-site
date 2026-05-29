@@ -34,7 +34,7 @@ export const expenseCreateSchema = z
     (data) => data.expense_type !== "one_time" || !!data.impact_end_date,
     {
       path: ["impact_end_date"],
-      message: "Data de fim obrigatória para despesa avulsa",
+      message: "Data de fim obrigatória para gasto avulso",
     }
   )
   .refine(
@@ -43,7 +43,7 @@ export const expenseCreateSchema = z
       data.impact_end_date === data.impact_start_date,
     {
       path: ["impact_end_date"],
-      message: "Data de fim deve ser igual ao início para despesa avulsa",
+      message: "Data de fim deve ser igual ao início para gasto avulso",
     }
   )
   .refine(

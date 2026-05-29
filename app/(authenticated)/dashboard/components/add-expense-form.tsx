@@ -248,7 +248,7 @@ export default function AddExpenseForm({ id, categories, onSubmitted }: Props) {
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
               <FormLabel htmlFor={field.name} required>
-                Tipo de despesa
+                Tipo de Gasto
               </FormLabel>
               <Select value={field.value} onValueChange={field.onChange}>
                 <SelectTrigger
@@ -365,7 +365,7 @@ export default function AddExpenseForm({ id, categories, onSubmitted }: Props) {
                 />
                 {isOneTime ? (
                   <FieldDescription>
-                    Igual ao início para despesas avulsas.
+                    Igual ao início para gastos avulsos.
                   </FieldDescription>
                 ) : null}
                 {isInstallment ? (
