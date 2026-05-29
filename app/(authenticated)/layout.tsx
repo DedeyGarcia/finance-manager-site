@@ -17,7 +17,7 @@ export default async function Layout({
   return (
     <SidebarProvider>
       <AppSidebar user={user} />
-      <main className="flex flex-1 flex-col">
+      <main className="flex min-w-0 flex-1 flex-col overflow-x-clip">
         <LayoutHeader categories={categories} />
         {children}
       </main>

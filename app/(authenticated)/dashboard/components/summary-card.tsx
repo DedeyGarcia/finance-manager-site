@@ -3,12 +3,16 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Field, FieldLabel } from "@/components/ui/field"
 import { Progress } from "@/components/ui/progress"
-import { formatCurrency } from "@/lib/utils"
+import { cn, formatCurrency } from "@/lib/utils"
 import { Separator } from "@/components/ui/separator"
 import { useDashboard } from "../hooks/use-dashboard"
 
 export default function SummaryCard() {
-  const { data: dashboard } = useDashboard()
+  const { data: dashboard, isPlaceholderData } = useDashboard()
+
+  // Defensivo: não deve ocorrer após a hidratação (a key bate com o prefetch
+  // do page.tsx); o loading.tsx cobre o carregamento inicial da rota.
+  if (!dashboard) return null
 
   const totalIncomes = parseFloat(dashboard.total_incomes)
   const totalExpenses = parseFloat(dashboard.total_expenses)
@@ -17,7 +21,12 @@ export default function SummaryCard() {
     totalIncomes > 0 ? (totalExpenses / totalIncomes) * 100 : 0
 
   return (
-    <Card>
+    <Card
+      className={cn(
+        "transition-opacity",
+        isPlaceholderData && "opacity-60"
+      )}
+    >
       <CardContent className="space-y-2">
         <h3 className="text-sm font-medium text-muted-foreground">
           Ainda sobra esse mês

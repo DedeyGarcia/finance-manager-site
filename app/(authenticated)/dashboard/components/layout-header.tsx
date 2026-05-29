@@ -15,6 +15,7 @@ import { PlusIcon } from "lucide-react"
 import type { Category } from "@/types/category"
 import AddExpenseSheet from "./add-expense-sheet"
 import AddIncomeSheet from "./add-income-sheet"
+import MonthSelector from "./month-selector"
 
 type Props = {
   categories: Category[]
@@ -27,6 +28,9 @@ export default function LayoutHeader({ categories }: Props) {
   return (
     <div className="flex flex-row items-center border-b px-4 py-4 sm:px-8">
       <SidebarTrigger />
+      <div className="ml-2">
+        <MonthSelector />
+      </div>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button className="ml-auto">
