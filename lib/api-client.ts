@@ -14,9 +14,28 @@ type Method = "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
 type FetchOptions = {
   method?: Method
   body?: unknown
+  query?: Record<string, unknown>
   headers?: Record<string, string>
   next?: { revalidate?: number; tags?: string[] }
   timeoutInMs?: number
+}
+
+function buildQueryString(query?: FetchOptions["query"]): string {
+  if (!query) return ""
+  const params = new URLSearchParams()
+  for (const [key, value] of Object.entries(query)) {
+    if (value === null || value === undefined) continue
+    if (Array.isArray(value)) {
+      for (const item of value) {
+        if (item === null || item === undefined) continue
+        params.append(key, String(item))
+      }
+    } else {
+      params.append(key, String(value))
+    }
+  }
+  const qs = params.toString()
+  return qs ? `?${qs}` : ""
 }
 
 export async function apiFetch<T>(
@@ -26,6 +45,7 @@ export async function apiFetch<T>(
   const {
     method = "GET",
     body,
+    query,
     headers = {},
     next,
     timeoutInMs = 10_000,
@@ -38,10 +58,11 @@ export async function apiFetch<T>(
     if (token) authHeader = { Authorization: `Bearer ${token}` }
   }
 
-  const url =
+  const basePath =
     typeof window === "undefined"
       ? `${process.env.FINANCE_MANAGER_API_URL}${path}`
       : path
+  const url = `${basePath}${buildQueryString(query)}`
 
   const isNativeBody =
     typeof body === "string" ||

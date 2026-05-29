@@ -13,7 +13,7 @@ export default async function Layout({
   return (
     <SidebarProvider>
       <AppSidebar user={user} />
-      <main>
+      <main className="flex flex-1 flex-col">
         <SidebarTrigger />
         {children}
       </main>
