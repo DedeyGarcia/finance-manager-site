@@ -79,6 +79,7 @@ export default function AddExpenseForm({ id, categories, onSubmitted }: Props) {
     name: ["expense_type", "impact_start_date", "installments_count"],
   })
 
+  const { isSubmitted } = form.formState
   const isInstallment = expenseType === "installment"
   const isRecurring =
     expenseType === "fixed" || expenseType === "automatic_debit"
@@ -100,6 +101,12 @@ export default function AddExpenseForm({ id, categories, onSubmitted }: Props) {
     const end = format(addMonths(start, count - 1), "yyyy-MM-dd")
     form.setValue("impact_end_date", end, { shouldValidate: true })
   }, [isInstallment, impactStartDate, installmentsCount, form])
+
+  useEffect(() => {
+    if (!isSubmitted) return
+
+    void form.trigger(["impact_end_date", "installments_count"])
+  }, [expenseType, isSubmitted, form])
 
   async function onSubmit(data: ExpenseCreateFormData) {
     // TODO: integrar com mutation TanStack
@@ -143,7 +150,7 @@ export default function AddExpenseForm({ id, categories, onSubmitted }: Props) {
                   type="number"
                   inputMode="decimal"
                   step="0.01"
-                  min="0"
+                  min="0.01"
                   placeholder="0,00"
                   aria-invalid={fieldState.invalid}
                 />
@@ -315,7 +322,14 @@ export default function AddExpenseForm({ id, categories, onSubmitted }: Props) {
                   value={field.value}
                   onChange={field.onChange}
                   ariaInvalid={fieldState.invalid}
+                  disabled={isInstallment}
+                  clearable={!isInstallment}
                 />
+                {isInstallment ? (
+                  <FieldDescription>
+                    Calculado automaticamente pelo número de parcelas.
+                  </FieldDescription>
+                ) : null}
                 {isRecurring && (
                   <FieldDescription>
                     Deixe em branco para recorrência indefinida.
