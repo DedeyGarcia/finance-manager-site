@@ -1,7 +1,7 @@
 import { AppSidebar } from "@/components/app-sidebar"
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
-import { apiFetch } from "@/lib/api-client"
-import type { User } from "@/types/user"
+import { SidebarProvider } from "@/components/ui/sidebar"
+import { AuthService } from "@/services/auth"
+import { CategoryService } from "@/services/category"
 import LayoutHeader from "./dashboard/components/layout-header"
 
 export default async function Layout({
@@ -9,13 +9,16 @@ export default async function Layout({
 }: {
   children: React.ReactNode
 }) {
-  const user = await apiFetch<User>("/auth/me")
+  const [user, categories] = await Promise.all([
+    AuthService.getMe(),
+    CategoryService.getCategories(),
+  ])
 
   return (
     <SidebarProvider>
       <AppSidebar user={user} />
       <main className="flex flex-1 flex-col">
-        <LayoutHeader />
+        <LayoutHeader categories={categories} />
         {children}
       </main>
     </SidebarProvider>

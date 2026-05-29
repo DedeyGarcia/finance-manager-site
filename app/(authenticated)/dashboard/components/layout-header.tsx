@@ -12,9 +12,14 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { PlusIcon } from "lucide-react"
+import type { Category } from "@/types/category"
 import AddExpenseSheet from "./add-expense-sheet"
 
-export default function LayoutHeader() {
+type Props = {
+  categories: Category[]
+}
+
+export default function LayoutHeader({ categories }: Props) {
   const [expenseOpen, setExpenseOpen] = useState(false)
 
   return (
@@ -37,7 +42,11 @@ export default function LayoutHeader() {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <AddExpenseSheet open={expenseOpen} onOpenChange={setExpenseOpen} />
+      <AddExpenseSheet
+        open={expenseOpen}
+        onOpenChange={setExpenseOpen}
+        categories={categories}
+      />
     </div>
   )
 }
