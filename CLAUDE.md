@@ -114,7 +114,7 @@ parcela_atual = diferença_meses(impact_start_date, period_start) + 1
 
 ## Convenções de código
 
-- **Forms**: sempre usar **React Hook Form**. Nunca controlar estado de formulário com `useState`.
+- **Forms**: sempre usar **React Hook Form** com `Controller` + os primitivos `Field`/`FieldLabel`/`FieldError`/`FieldDescription`/`FieldGroup`/`FieldSeparator` de [components/ui/field.tsx](components/ui/field.tsx). Nunca controlar estado de formulário com `useState`. Schemas em `lib/schemas/` usando Zod + `zodResolver`. Exemplo de referência: [components/login-form.tsx](components/login-form.tsx).
 - **Componentes**: priorizar componentes de biblioteca (shadcn/ui, Radix) antes de criar do zero.
 - **Fetch**: nunca usar `fetch` diretamente — sempre através do wrapper tipado do projeto (a ser criado em `lib/api/`). O wrapper receberá os tipos gerados em `docs/api.types.ts`.
 - Seguir DRY, KISS e YAGNI: sem abstrações prematuras, sem código para casos hipotéticos futuros.

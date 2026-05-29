@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { ResponsiveSheet } from "@/components/responsive-sheet"
 import type { Category } from "@/types/category"
+import AddExpenseForm from "./add-expense-form"
 
 type Props = {
   open: boolean
@@ -18,12 +19,6 @@ export default function AddExpenseSheet({
   categories,
 }: Props) {
   const expenseCategories = categories.filter((c) => c.kind === "expense")
-  void expenseCategories // TODO: usar no <Select> de categoria do form
-  const handleSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    // TODO: integrar com React Hook Form + mutation
-    onOpenChange(false)
-  }
 
   return (
     <ResponsiveSheet
@@ -46,9 +41,11 @@ export default function AddExpenseSheet({
         </>
       }
     >
-      <form id={FORM_ID} onSubmit={handleSubmit} className="space-y-4">
-        {/* campos aqui */}
-      </form>
+      <AddExpenseForm
+        id={FORM_ID}
+        categories={expenseCategories}
+        onSubmitted={() => onOpenChange(false)}
+      />
     </ResponsiveSheet>
   )
 }
