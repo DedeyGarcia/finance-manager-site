@@ -424,7 +424,7 @@ export interface components {
             /** Impact End Date */
             impact_end_date: string | null;
             /** Installments Count */
-            installments_count: number | null;
+            installments_count: number;
             /** Source Text */
             source_text: string | null;
             /**
@@ -1119,9 +1119,9 @@ export interface operations {
                 title?: string | null;
                 amount_gte?: number | string | null;
                 amount_lte?: number | string | null;
-                expense_type?: components["schemas"]["IncomeType"] | null;
-                purchase_date_gte?: string | null;
-                purchase_date_lte?: string | null;
+                income_type?: components["schemas"]["IncomeType"] | null;
+                received_date_gte?: string | null;
+                received_date_lte?: string | null;
                 impact_start_date_gte?: string | null;
                 impact_start_date_lte?: string | null;
                 impact_end_date_gte?: string | null;

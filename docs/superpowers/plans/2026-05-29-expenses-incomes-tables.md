@@ -23,8 +23,8 @@
 | `types/expense.ts` / `types/income.ts` (modificar) | + tipo da resposta de lista |
 | `lib/query-keys.ts` (modificar) | + chaves `expenses` e `incomes` |
 | `components/ui/badge.tsx` / `components/ui/alert-dialog.tsx` (criar via shadcn) | primitivos novos |
-| `services/expense.ts` / `services/income.ts` (criar) | leitura server-only de `/…/all` |
-| `app/api/expenses/all/route.ts` / `app/api/incomes/all/route.ts` (criar) | proxy GET |
+| `services/expense.ts` / `services/income.ts` (criar) | leitura server-only de `/expenses/` e `/incomes/` |
+| `app/api/expenses/route.ts` / `app/api/incomes/route.ts` (modificar) | proxy GET + POST |
 | `app/api/expenses/[id]/route.ts` / `app/api/incomes/[id]/route.ts` (criar) | proxy DELETE (204) |
 | `components/ui/data-table.tsx` (criar) | `<DataTable>` genérico + `DataTableSortHeader` |
 | `app/(authenticated)/expenses/**` (criar) | hooks, colunas, botão excluir, tabela, page, loading |
@@ -206,7 +206,7 @@ import type { ExpenseListResponse, ExpenseRead } from "@/types/expense"
 
 export const ExpenseService = {
   getAllExpenses: async (): Promise<ExpenseRead[]> => {
-    const res = await apiFetch<ExpenseListResponse>("/expenses/all")
+    const res = await apiFetch<ExpenseListResponse>("/expenses/")
     return res.data
   },
 }
@@ -222,7 +222,7 @@ import type { IncomeListResponse, IncomeRead } from "@/types/income"
 
 export const IncomeService = {
   getAllIncomes: async (): Promise<IncomeRead[]> => {
-    const res = await apiFetch<IncomeListResponse>("/incomes/all")
+    const res = await apiFetch<IncomeListResponse>("/incomes/")
     return res.data
   },
 }
@@ -245,21 +245,22 @@ git commit -m "feat: add expense/income server services for full lists"
 ## Task 4: Rotas proxy do Next
 
 **Files:**
-- Create: `app/api/expenses/all/route.ts`, `app/api/expenses/[id]/route.ts`
-- Create: `app/api/incomes/all/route.ts`, `app/api/incomes/[id]/route.ts`
+- Modify: `app/api/expenses/route.ts`, `app/api/incomes/route.ts`
+- Create: `app/api/expenses/[id]/route.ts`, `app/api/incomes/[id]/route.ts`
 
-> Nota: em Next, o segmento estático `all` tem precedência sobre o dinâmico `[id]`, então `/api/expenses/all` e `/api/expenses/<uuid>` não conflitam.
+> Importante: não usar `/expenses/all` nem `/incomes/all`; esses endpoints são de teste. A lista autenticada usa `GET /expenses/` e `GET /incomes/`.
 
-- [ ] **Step 1: `app/api/expenses/all/route.ts`** (desembrulha `.data` para casar com o service)
+- [ ] **Step 1: adicionar `GET` em `app/api/expenses/route.ts`** (desembrulha `.data` para casar com o hook client-side)
 
 ```ts
 import { apiFetch } from "@/lib/api-client"
 import { forward } from "@/lib/forward"
-import type { ExpenseListResponse } from "@/types/expense"
+import type { ExpenseCreate, ExpenseListResponse, ExpenseRead } from "@/types/expense"
+import { NextRequest } from "next/server"
 
 export async function GET() {
   return forward(async () => {
-    const res = await apiFetch<ExpenseListResponse>("/expenses/all")
+    const res = await apiFetch<ExpenseListResponse>("/expenses/")
     return res.data
   })
 }
@@ -281,16 +282,17 @@ export async function DELETE(
 }
 ```
 
-- [ ] **Step 3: `app/api/incomes/all/route.ts`**
+- [ ] **Step 3: adicionar `GET` em `app/api/incomes/route.ts`**
 
 ```ts
 import { apiFetch } from "@/lib/api-client"
 import { forward } from "@/lib/forward"
-import type { IncomeListResponse } from "@/types/income"
+import type { IncomeCreate, IncomeListResponse, IncomeRead } from "@/types/income"
+import { NextRequest } from "next/server"
 
 export async function GET() {
   return forward(async () => {
-    const res = await apiFetch<IncomeListResponse>("/incomes/all")
+    const res = await apiFetch<IncomeListResponse>("/incomes/")
     return res.data
   })
 }
@@ -529,7 +531,7 @@ import { useQuery } from "@tanstack/react-query"
 export function useExpenses() {
   return useQuery({
     queryKey: queryKeys.expenses.list(),
-    queryFn: () => apiFetch<ExpenseRead[]>("/api/expenses/all"),
+    queryFn: () => apiFetch<ExpenseRead[]>("/api/expenses"),
   })
 }
 ```
@@ -1027,7 +1029,7 @@ import { useQuery } from "@tanstack/react-query"
 export function useIncomes() {
   return useQuery({
     queryKey: queryKeys.incomes.list(),
-    queryFn: () => apiFetch<IncomeRead[]>("/api/incomes/all"),
+    queryFn: () => apiFetch<IncomeRead[]>("/api/incomes"),
   })
 }
 ```

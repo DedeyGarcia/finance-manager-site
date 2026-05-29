@@ -26,10 +26,17 @@ export function IncomesTable({ categories }: { categories: Category[] }) {
   const year = useMonthStore((state) => state.year)
   const month = useMonthStore((state) => state.month)
 
+  const incomeCategories = useMemo(
+    () => categories.filter((category) => category.kind === "income"),
+    [categories]
+  )
+
   const categoryName = useMemo(() => {
-    const map = new Map(categories.map((category) => [category.id, category.name]))
+    const map = new Map(
+      incomeCategories.map((category) => [category.id, category.name])
+    )
     return (id: string | null) => (id ? (map.get(id) ?? "—") : "—")
-  }, [categories])
+  }, [incomeCategories])
 
   const columns = useMemo(() => getIncomeColumns(categoryName), [categoryName])
 
@@ -65,7 +72,12 @@ export function IncomesTable({ categories }: { categories: Category[] }) {
             <SelectTrigger className="w-44">
               <SelectValue placeholder="Tipo" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent
+              position="popper"
+              side="bottom"
+              align="start"
+              avoidCollisions={false}
+            >
               <SelectItem value="all">Todos os tipos</SelectItem>
               {Object.entries(INCOME_TYPE_LABELS).map(([value, label]) => (
                 <SelectItem key={value} value={value}>
@@ -87,9 +99,14 @@ export function IncomesTable({ categories }: { categories: Category[] }) {
             <SelectTrigger className="w-48">
               <SelectValue placeholder="Categoria" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent
+              position="popper"
+              side="bottom"
+              align="start"
+              avoidCollisions={false}
+            >
               <SelectItem value="all">Todas as categorias</SelectItem>
-              {categories.map((category) => (
+              {incomeCategories.map((category) => (
                 <SelectItem key={category.id} value={category.id}>
                   {category.name}
                 </SelectItem>
@@ -114,9 +131,9 @@ export function IncomesTable({ categories }: { categories: Category[] }) {
 
         return (
           <TableRow>
-            <TableCell colSpan={columns.length} className="font-mono">
+            <TableCell colSpan={columns.length}>
               Receita prevista em {monthLabel}:{" "}
-              <strong>{formatCurrency(total)}</strong>
+              <strong className="font-mono">{formatCurrency(total)}</strong>
             </TableCell>
           </TableRow>
         )

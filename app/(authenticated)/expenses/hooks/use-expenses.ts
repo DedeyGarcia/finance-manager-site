@@ -8,6 +8,6 @@ import { useQuery } from "@tanstack/react-query"
 export function useExpenses() {
   return useQuery({
     queryKey: queryKeys.expenses.list(),
-    queryFn: () => apiFetch<ExpenseRead[]>("/api/expenses/all"),
+    queryFn: () => apiFetch<ExpenseRead[]>("/api/expenses"),
   })
 }

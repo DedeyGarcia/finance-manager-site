@@ -21,7 +21,8 @@ visão recortada por mês sem repetir o mesmo registro N vezes.
    "Comprometido em \<mês\>" somando a contribuição de cada registro ativo no mês selecionado no
    header. Resolve como a compra avulsa entra na soma — ela só conta no mês dela. (Opção 2 do
    rodapé.)
-3. **Camada de dados = prefetch SSR + client-side.** `page.tsx` faz `prefetchQuery` de `/…/all` +
+3. **Camada de dados = prefetch SSR + client-side.** `page.tsx` faz `prefetchQuery` dos endpoints
+   autenticados de lista (`/expenses/` e `/incomes/`) +
    `HydrationBoundary`; o client usa `useQuery` (mesma key) + TanStack Table fazendo
    ordenação/filtro/paginação no navegador. É o mesmo padrão do dashboard. (Abordagem C.) Isso
    também contorna o edge-case da regra de período: o filtro `impact_end_date_gte` do endpoint
@@ -38,13 +39,13 @@ visão recortada por mês sem repetir o mesmo registro N vezes.
 ```
 app/(authenticated)/
   expenses/
-    page.tsx                      # server: prefetch /expenses/all + categorias, HydrationBoundary
+    page.tsx                      # server: prefetch /expenses/ + categorias, HydrationBoundary
     loading.tsx                   # skeleton da tabela
     components/
       expenses-table.tsx          # client: monta colunas (com categorias) + render do DataTable
       expenses-columns.tsx        # ColumnDef<ExpenseRead>[]
     hooks/
-      use-expenses.ts             # useQuery -> /api/expenses/all
+      use-expenses.ts             # useQuery -> /api/expenses
       use-delete-expense.ts       # useMutation DELETE + optimistic
   incomes/                        # espelho (sem coluna "impacto/mês")
     page.tsx
@@ -60,9 +61,9 @@ components/ui/data-table.tsx      # <DataTable> genérico reutilizável (shadcn)
 components/ui/badge.tsx           # adicionar via shadcn
 components/ui/alert-dialog.tsx    # adicionar via shadcn
 
-app/api/expenses/all/route.ts     # GET  proxy -> /expenses/all
+app/api/expenses/route.ts         # GET/POST proxy -> /expenses/
 app/api/expenses/[id]/route.ts    # DELETE proxy -> /expenses/{id} (204)
-app/api/incomes/all/route.ts      # GET  proxy -> /incomes/all
+app/api/incomes/route.ts          # GET/POST proxy -> /incomes/
 app/api/incomes/[id]/route.ts     # DELETE proxy -> /incomes/{id} (204)
 
 services/expense.ts               # server-only: getAllExpenses()
@@ -80,7 +81,7 @@ components/app-sidebar.tsx        # + navegação
   tabela em `HydrationBoundary`. Categorias entram como prop do client component (read pontual,
   sem rota proxy — conforme CLAUDE.md).
 - **Client read:** `use-expenses.ts` → `useQuery` com a **mesma** `queryKey`, `queryFn` batendo em
-  `/api/expenses/all`. Resposta tipada `RawListResponse_ExpenseRead_` = `{ data: ExpenseRead[], total }`.
+  `/api/expenses`. Resposta tipada `RawListResponse_ExpenseRead_` = `{ data: ExpenseRead[], total }`.
   A tabela consome `.data`.
 - **query-keys.ts:** adicionar
   ```ts
@@ -189,7 +190,7 @@ Anotado aqui para não se perder:
 
 - **Widgets do dashboard:** (A) gastos por categoria, (B) maiores compromissos do mês, (C) rosca de
   composição por tipo, (D) composição da receita (recorrente vs avulsa), (E) linha do tempo de
-  parcelas. (A) e (B) exigem buscar `/expenses/all` na página do dashboard; (C) exige adicionar
+  parcelas. (A) e (B) exigem buscar a lista autenticada em `/expenses/` na página do dashboard; (C) exige adicionar
   recharts; (D) é barato (dado já vem no `/dashboard`); (E) é o mais complexo.
 - **Visualizar/editar registro** (a API já tem `PATCH`).
 - **Tela de configurações** (`/settings`) e link na sidebar.

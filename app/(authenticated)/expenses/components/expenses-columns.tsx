@@ -21,6 +21,10 @@ function formatMonth(iso: string) {
   return format(new Date(`${iso}T00:00:00`), "MMM/yy", { locale: ptBR })
 }
 
+function formatDate(iso: string | null) {
+  return iso ? format(new Date(`${iso}T00:00:00`), "dd/MM/yy", { locale: ptBR }) : "—"
+}
+
 function formatVigencia(start: string, end: string | null) {
   return end ? `${formatMonth(start)} → ${formatMonth(end)}` : `${formatMonth(start)} → ∞`
 }
@@ -49,6 +53,13 @@ export function getExpenseColumns(
       header: "Categoria",
       cell: ({ row }) => categoryName(row.original.category_id),
       filterFn: "equals",
+    },
+    {
+      accessorKey: "purchase_date",
+      header: ({ column }) => (
+        <DataTableSortHeader column={column} label="Compra" />
+      ),
+      cell: ({ row }) => formatDate(row.original.purchase_date),
     },
     {
       accessorKey: "amount",

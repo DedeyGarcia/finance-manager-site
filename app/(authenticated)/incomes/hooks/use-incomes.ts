@@ -8,6 +8,6 @@ import { useQuery } from "@tanstack/react-query"
 export function useIncomes() {
   return useQuery({
     queryKey: queryKeys.incomes.list(),
-    queryFn: () => apiFetch<IncomeRead[]>("/api/incomes/all"),
+    queryFn: () => apiFetch<IncomeRead[]>("/api/incomes"),
   })
 }

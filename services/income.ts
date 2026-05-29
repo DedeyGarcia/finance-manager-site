@@ -5,7 +5,7 @@ import type { IncomeListResponse, IncomeRead } from "@/types/income"
 
 export const IncomeService = {
   getAllIncomes: async (): Promise<IncomeRead[]> => {
-    const res = await apiFetch<IncomeListResponse>("/incomes/all")
+    const res = await apiFetch<IncomeListResponse>("/incomes/")
     return res.data
   },
 }
