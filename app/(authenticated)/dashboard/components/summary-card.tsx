@@ -4,8 +4,8 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Field, FieldLabel } from "@/components/ui/field"
 import { Progress } from "@/components/ui/progress"
 import { formatCurrency } from "@/lib/utils"
-import { useDashboard } from "../hooks/use-dashboard"
 import { Separator } from "@/components/ui/separator"
+import { useDashboard } from "../hooks/use-dashboard"
 
 export default function SummaryCard() {
   const { data: dashboard } = useDashboard()
@@ -22,7 +22,7 @@ export default function SummaryCard() {
         <h3 className="text-sm font-medium text-muted-foreground">
           Ainda sobra esse mês
         </h3>
-        <h1 className="font-serif text-5xl font-bold italic">
+        <h1 className="font-serif text-3xl font-bold italic wrap-break-word sm:text-5xl">
           {formatCurrency(dashboard.total_balance)}
         </h1>
         <p className="text-sm text-muted-foreground">
@@ -38,7 +38,7 @@ export default function SummaryCard() {
         </p>
 
         <Field className="w-full">
-          <FieldLabel htmlFor="spent-percentage font-mono">
+          <FieldLabel htmlFor="spent-percentage" className="flex-wrap font-mono">
             <span>Já gastei · {spentPercentage.toFixed(2)}%</span>
             <span className="ml-auto">
               {formatCurrency(dashboard.total_expenses)} /{" "}
@@ -50,33 +50,44 @@ export default function SummaryCard() {
 
         <Separator orientation="horizontal" className="my-4" />
 
-        <div className="flex flex-1">
-          <div className="flex flex-1 flex-col gap-1">
-            <h4 className="text-sm text-muted-foreground">Déb. Automático</h4>
-            <h2 className="font-mono text-lg font-medium">
-              {formatCurrency(dashboard.total_automatic_expenses)}
-            </h2>
-          </div>
-          <Separator orientation="vertical" className="mx-4" />
-          <div className="flex flex-1 flex-col gap-1">
-            <h4 className="text-sm text-muted-foreground">Fixos</h4>
-            <h2 className="font-mono text-lg font-medium">
-              {formatCurrency(dashboard.total_fixed_expenses)}
-            </h2>
-          </div>
-          <Separator orientation="vertical" className="mx-4" />
-          <div className="flex flex-1 flex-col gap-1">
-            <h4 className="text-sm text-muted-foreground">Parcelas</h4>
-            <h2 className="font-mono text-lg font-medium">
-              {formatCurrency(dashboard.total_installment_expenses)}
-            </h2>
-          </div>
-          <Separator orientation="vertical" className="mx-4" />
-          <div className="flex flex-1 flex-col gap-1">
-            <h4 className="text-sm text-muted-foreground">Receitas</h4>
-            <h2 className="font-mono text-lg font-medium">
-              {formatCurrency(dashboard.total_incomes)}
-            </h2>
+        <div className="flex flex-col sm:flex-row">
+          <div className="grid grid-cols-2 gap-4 sm:flex sm:flex-1 sm:gap-0">
+            <div className="flex flex-col gap-1 sm:flex-1">
+              <h4 className="text-sm text-muted-foreground">Déb. Automático</h4>
+              <h2 className="font-mono text-lg font-medium">
+                {formatCurrency(dashboard.total_automatic_expenses)}
+              </h2>
+            </div>
+            <Separator
+              orientation="vertical"
+              className="mx-4 hidden sm:block"
+            />
+            <div className="flex flex-col gap-1 sm:flex-1">
+              <h4 className="text-sm text-muted-foreground">Fixos</h4>
+              <h2 className="font-mono text-lg font-medium">
+                {formatCurrency(dashboard.total_fixed_expenses)}
+              </h2>
+            </div>
+            <Separator
+              orientation="vertical"
+              className="mx-4 hidden sm:block"
+            />
+            <div className="flex flex-col gap-1 sm:flex-1">
+              <h4 className="text-sm text-muted-foreground">Parcelas</h4>
+              <h2 className="font-mono text-lg font-medium">
+                {formatCurrency(dashboard.total_installment_expenses)}
+              </h2>
+            </div>
+            <Separator
+              orientation="vertical"
+              className="mx-4 hidden sm:block"
+            />
+            <div className="flex flex-col gap-1 sm:flex-1">
+              <h4 className="text-sm text-muted-foreground">Receitas</h4>
+              <h2 className="font-mono text-lg font-medium">
+                {formatCurrency(dashboard.total_incomes)}
+              </h2>
+            </div>
           </div>
         </div>
       </CardContent>

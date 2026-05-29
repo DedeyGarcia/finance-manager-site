@@ -18,7 +18,7 @@ export default async function DashboardPage() {
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <div className="flex flex-1 flex-col px-8 py-4">
+      <div className="flex flex-1 flex-col px-4 py-4 sm:px-8">
         <Suspense fallback={null}>
           <SummaryCard />
         </Suspense>

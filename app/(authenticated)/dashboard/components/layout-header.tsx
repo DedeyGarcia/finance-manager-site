@@ -18,7 +18,7 @@ export default function LayoutHeader() {
   const [expenseOpen, setExpenseOpen] = useState(false)
 
   return (
-    <div className="flex flex-row items-center border-b px-8 py-4">
+    <div className="flex flex-row items-center border-b px-4 py-4 sm:px-8">
       <SidebarTrigger />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
