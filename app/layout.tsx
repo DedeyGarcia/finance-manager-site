@@ -1,7 +1,7 @@
 // For adding custom fonts with other frameworks, see:
 // https://tailwindcss.com/docs/font-family
 import type { Metadata } from "next"
-import { Inter, Merriweather, JetBrains_Mono } from "next/font/google"
+import { Inter, Instrument_Serif, JetBrains_Mono } from "next/font/google"
 import "./globals.css"
 import { Providers } from "./providers"
 
@@ -10,8 +10,10 @@ const fontSans = Inter({
   variable: "--font-sans",
 })
 
-const fontSerif = Merriweather({
+const fontSerif = Instrument_Serif({
   subsets: ["latin"],
+  weight: "400",
+  style: ["normal", "italic"],
   variable: "--font-serif",
 })
 

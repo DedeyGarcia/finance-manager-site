@@ -36,7 +36,7 @@
   --sidebar-border: oklch(0.8708 0.0128 255.5128);
   --sidebar-ring: oklch(0.5663 0.2398 274.5785);
   --font-sans: Inter, sans-serif;
-  --font-serif: Merriweather, serif;
+  --font-serif: "Instrument Serif", serif;
   --font-mono: JetBrains Mono, monospace;
   --radius: 0.5rem;
   --shadow-x: 0px;
@@ -91,7 +91,7 @@
   --sidebar-border: oklch(0.4419 0.0375 257.2811);
   --sidebar-ring: oklch(0.6682 0.1771 276.2341);
   --font-sans: Inter, sans-serif;
-  --font-serif: Merriweather, serif;
+  --font-serif: "Instrument Serif", serif;
   --font-mono: JetBrains Mono, monospace;
   --radius: 0.5rem;
   --shadow-x: 0px;
