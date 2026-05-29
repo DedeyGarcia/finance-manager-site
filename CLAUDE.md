@@ -12,6 +12,10 @@ npm run lint       # ESLint
 npm run format     # Prettier em todos os .ts/.tsx
 ```
 
+## Git — REGRA OBRIGATÓRIA
+
+**Nunca** rodar `git commit`, `git add`, `git push` nem criar branches (`git branch`/`git checkout -b`/`git switch -c`) sem permissão explícita do usuário **na conversa atual**. Sem exceção. Aprovação dada em um momento não vale para ações futuras — peça de novo a cada vez. Pode rodar comandos de leitura (`git status`, `git diff`, `git log`) à vontade.
+
 ## Stack e arquitetura
 
 **Next.js 16 App Router** com **React 19**, **TypeScript**, **Tailwind CSS v4** e **shadcn/ui**.
