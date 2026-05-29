@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { moneyInputSchema, optionalIsoDate, requiredIsoDate } from "./common"
 
 export const EXPENSE_TYPES = [
   "one_time",
@@ -6,15 +7,6 @@ export const EXPENSE_TYPES = [
   "automatic_debit",
   "installment",
 ] as const
-
-const MONEY_PATTERN = /^\d+(\.\d{1,2})?$/
-
-const requiredIsoDate = (message: string) =>
-  z.string().min(1, message).pipe(z.iso.date("Use uma data válida"))
-
-const optionalIsoDate = z
-  .union([z.iso.date("Use uma data válida"), z.literal("")])
-  .optional()
 
 export const expenseCreateSchema = z
   .object({
@@ -24,13 +16,7 @@ export const expenseCreateSchema = z
       .min(1, "Título é obrigatório")
       .max(120, "Título muito longo"),
     description: z.string().max(500, "Descrição muito longa").optional(),
-    amount: z
-      .string()
-      .trim()
-      .min(1, "Valor obrigatório")
-      .refine((v) => MONEY_PATTERN.test(v), "Use um valor monetário válido")
-      .refine((v) => Number(v) > 0, "Valor deve ser maior que zero")
-      .transform(Number),
+    amount: moneyInputSchema,
     category_id: z.uuid("Selecione uma categoria"),
     expense_type: z.enum(EXPENSE_TYPES, { message: "Selecione um tipo" }),
     installments_count: z
@@ -49,6 +35,15 @@ export const expenseCreateSchema = z
     {
       path: ["impact_end_date"],
       message: "Data de fim obrigatória para despesa avulsa",
+    }
+  )
+  .refine(
+    (data) =>
+      data.expense_type !== "one_time" ||
+      data.impact_end_date === data.impact_start_date,
+    {
+      path: ["impact_end_date"],
+      message: "Data de fim deve ser igual ao início para despesa avulsa",
     }
   )
   .refine(

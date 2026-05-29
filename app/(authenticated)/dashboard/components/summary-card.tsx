@@ -22,7 +22,7 @@ export default function SummaryCard() {
         <h3 className="text-sm font-medium text-muted-foreground">
           Ainda sobra esse mês
         </h3>
-        <h1 className="font-serif text-3xl font-bold italic wrap-break-word sm:text-5xl">
+        <h1 className="font-serif text-3xl font-bold wrap-break-word italic sm:text-5xl">
           {formatCurrency(dashboard.total_balance)}
         </h1>
         <p className="text-sm text-muted-foreground">
@@ -34,11 +34,14 @@ export default function SummaryCard() {
           <strong className="font-mono text-sm font-medium text-card-foreground">
             {formatCurrency(dashboard.total_expenses)}
           </strong>{" "}
-          em débitos automáticos, gastos fixos e parcelas
+          em débitos automáticos, gastos fixos, parcelas e compras avulsas
         </p>
 
         <Field className="w-full">
-          <FieldLabel htmlFor="spent-percentage" className="flex-wrap font-mono">
+          <FieldLabel
+            htmlFor="spent-percentage"
+            className="flex-wrap font-mono"
+          >
             <span>Já gastei · {spentPercentage.toFixed(2)}%</span>
             <span className="ml-auto">
               {formatCurrency(dashboard.total_expenses)} /{" "}
@@ -50,44 +53,36 @@ export default function SummaryCard() {
 
         <Separator orientation="horizontal" className="my-4" />
 
-        <div className="flex flex-col sm:flex-row">
-          <div className="grid grid-cols-2 gap-4 sm:flex sm:flex-1 sm:gap-0">
-            <div className="flex flex-col gap-1 sm:flex-1">
-              <h4 className="text-sm text-muted-foreground">Déb. Automático</h4>
-              <h2 className="font-mono text-lg font-medium">
-                {formatCurrency(dashboard.total_automatic_expenses)}
-              </h2>
-            </div>
-            <Separator
-              orientation="vertical"
-              className="mx-4 hidden sm:block"
-            />
-            <div className="flex flex-col gap-1 sm:flex-1">
-              <h4 className="text-sm text-muted-foreground">Fixos</h4>
-              <h2 className="font-mono text-lg font-medium">
-                {formatCurrency(dashboard.total_fixed_expenses)}
-              </h2>
-            </div>
-            <Separator
-              orientation="vertical"
-              className="mx-4 hidden sm:block"
-            />
-            <div className="flex flex-col gap-1 sm:flex-1">
-              <h4 className="text-sm text-muted-foreground">Parcelas</h4>
-              <h2 className="font-mono text-lg font-medium">
-                {formatCurrency(dashboard.total_installment_expenses)}
-              </h2>
-            </div>
-            <Separator
-              orientation="vertical"
-              className="mx-4 hidden sm:block"
-            />
-            <div className="flex flex-col gap-1 sm:flex-1">
-              <h4 className="text-sm text-muted-foreground">Receitas</h4>
-              <h2 className="font-mono text-lg font-medium">
-                {formatCurrency(dashboard.total_incomes)}
-              </h2>
-            </div>
+        <div className="grid grid-cols-2 gap-x-4 gap-y-5 md:grid-cols-3 xl:grid-cols-5 xl:divide-x">
+          <div className="flex min-w-0 flex-col gap-1 xl:pr-4">
+            <h4 className="text-sm text-muted-foreground">Déb. Automático</h4>
+            <h2 className="font-mono text-lg font-medium wrap-break-word">
+              {formatCurrency(dashboard.total_automatic_expenses)}
+            </h2>
+          </div>
+          <div className="flex min-w-0 flex-col gap-1 xl:px-4">
+            <h4 className="text-sm text-muted-foreground">Fixos</h4>
+            <h2 className="font-mono text-lg font-medium wrap-break-word">
+              {formatCurrency(dashboard.total_fixed_expenses)}
+            </h2>
+          </div>
+          <div className="flex min-w-0 flex-col gap-1 xl:px-4">
+            <h4 className="text-sm text-muted-foreground">Parcelas</h4>
+            <h2 className="font-mono text-lg font-medium wrap-break-word">
+              {formatCurrency(dashboard.total_installment_expenses)}
+            </h2>
+          </div>
+          <div className="flex min-w-0 flex-col gap-1 xl:px-4">
+            <h4 className="text-sm text-muted-foreground">Avulsas</h4>
+            <h2 className="font-mono text-lg font-medium wrap-break-word">
+              {formatCurrency(dashboard.total_one_time_expenses)}
+            </h2>
+          </div>
+          <div className="flex min-w-0 flex-col gap-1 xl:pl-4">
+            <h4 className="text-sm text-muted-foreground">Receitas</h4>
+            <h2 className="font-mono text-lg font-medium wrap-break-word">
+              {formatCurrency(dashboard.total_incomes)}
+            </h2>
           </div>
         </div>
       </CardContent>

@@ -3,7 +3,7 @@
 import { useEffect } from "react"
 import { Controller, useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { addMonths, format, isValid, parse } from "date-fns"
+import { format } from "date-fns"
 import {
   Field,
   FieldDescription,
@@ -23,88 +23,85 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { DatePickerField } from "@/components/date-picker-field"
 import {
-  expenseCreateSchema,
-  type ExpenseCreateFormData,
-  type ExpenseCreateFormInput,
-} from "@/lib/schemas/expense"
+  incomeCreateSchema,
+  type IncomeCreateFormData,
+  type IncomeCreateFormInput,
+} from "@/lib/schemas/income"
 import type { Category } from "@/types/category"
-import { ExpenseCreate } from "@/types/expense"
-import { useCreateExpense } from "../hooks/use-create-expense"
+import type { IncomeCreate } from "@/types/income"
+import { useCreateIncome } from "../hooks/use-create-income"
 
 type Props = {
   id: string
   categories: Category[]
-  onSubmitted?: (data: ExpenseCreateFormData) => void
+  onSubmitted?: (data: IncomeCreateFormData) => void
 }
 
-const EXPENSE_TYPE_LABELS: Record<
-  ExpenseCreateFormData["expense_type"],
+const INCOME_TYPE_LABELS: Record<
+  IncomeCreateFormData["income_type"],
   { label: string; hint: string }
 > = {
   one_time: {
-    label: "Avulsa",
-    hint: "Uma única ocorrência em uma data específica.",
+    label: "Pontual",
+    hint: "Uma entrada única em uma data específica.",
   },
-  fixed: {
-    label: "Fixa",
-    hint: "Recorrência mensal não cobrada automáticamente (ex.: aluguel, aula de música).",
-  },
-  automatic_debit: {
-    label: "Débito automático",
-    hint: "Recorrência mensal debitada automaticamente.",
-  },
-  installment: {
-    label: "Parcelada",
-    hint: "Compra única dividida em N parcelas mensais.",
+  recurring: {
+    label: "Recorrente",
+    hint: "Entrada que se repete mensalmente.",
   },
 }
 
-export default function AddExpenseForm({ id, categories, onSubmitted }: Props) {
-  const createExpense = useCreateExpense()
+function emptyToNull(value: string | undefined) {
+  return value?.trim() ? value.trim() : null
+}
 
-  const form = useForm<ExpenseCreateFormInput, unknown, ExpenseCreateFormData>({
-    resolver: zodResolver(expenseCreateSchema),
+function toIncomeCreate(data: IncomeCreateFormData): IncomeCreate {
+  return {
+    category_id: data.category_id,
+    title: data.title,
+    description: emptyToNull(data.description),
+    amount: data.amount,
+    income_type: data.income_type,
+    received_date: emptyToNull(data.received_date),
+    impact_start_date: data.impact_start_date,
+    impact_end_date: emptyToNull(data.impact_end_date),
+    source_text: emptyToNull(data.source_text),
+  }
+}
+
+export default function AddIncomeForm({ id, categories, onSubmitted }: Props) {
+  const createIncome = useCreateIncome()
+
+  const form = useForm<IncomeCreateFormInput, unknown, IncomeCreateFormData>({
+    resolver: zodResolver(incomeCreateSchema),
     defaultValues: {
       title: "",
       description: "",
       amount: "",
       category_id: "",
-      expense_type: "one_time",
-      installments_count: "1",
+      income_type: "one_time",
+      received_date: "",
       impact_start_date: format(new Date(), "yyyy-MM-dd"),
       impact_end_date: format(new Date(), "yyyy-MM-dd"),
-      purchase_date: "",
       source_text: "",
     },
   })
 
-  const [expenseType, impactStartDate, installmentsCount] = useWatch({
+  const [incomeType, impactStartDate] = useWatch({
     control: form.control,
-    name: ["expense_type", "impact_start_date", "installments_count"],
+    name: ["income_type", "impact_start_date"],
   })
 
   const { isSubmitted } = form.formState
-  const isOneTime = expenseType === "one_time"
-  const isInstallment = expenseType === "installment"
-  const isRecurring =
-    expenseType === "fixed" || expenseType === "automatic_debit"
-  const isImpactEndLocked = isOneTime || isInstallment
-  const impactStartDescription =
-    expenseType === "automatic_debit" || isInstallment
-      ? "Vencimento da fatura ou data do pagamento."
-      : "Data em que foi realizado o pagamento"
-
-  useEffect(() => {
-    form.setValue("installments_count", isInstallment ? "2" : "1", {
-      shouldValidate: true,
-    })
-  }, [isInstallment, form])
+  const isOneTime = incomeType === "one_time"
+  const isRecurring = incomeType === "recurring"
+  const impactStartDescription = isRecurring
+    ? "Data inicial da recorrência."
+    : "Data em que a receita impacta o orçamento."
 
   useEffect(() => {
     if (!isOneTime) return
     if (!impactStartDate) return
-    const start = parse(impactStartDate, "yyyy-MM-dd", new Date())
-    if (!isValid(start)) return
 
     form.setValue("impact_end_date", impactStartDate, {
       shouldValidate: true,
@@ -112,44 +109,13 @@ export default function AddExpenseForm({ id, categories, onSubmitted }: Props) {
   }, [isOneTime, impactStartDate, form])
 
   useEffect(() => {
-    if (!isInstallment) return
-    if (!impactStartDate) return
-    if (!/^[1-9]\d*$/.test(installmentsCount)) return
-    const count = Number(installmentsCount)
-    if (count < 2) return
-    const start = parse(impactStartDate, "yyyy-MM-dd", new Date())
-    if (!isValid(start)) return
-    const end = format(addMonths(start, count - 1), "yyyy-MM-dd")
-    form.setValue("impact_end_date", end, { shouldValidate: true })
-  }, [isInstallment, impactStartDate, installmentsCount, form])
-
-  useEffect(() => {
     if (!isSubmitted) return
 
-    void form.trigger(["impact_end_date", "installments_count"])
-  }, [expenseType, isSubmitted, form])
+    void form.trigger("impact_end_date")
+  }, [incomeType, isSubmitted, form])
 
-  function emptyToNull(value: string | undefined) {
-    return value?.trim() ? value.trim() : null
-  }
-
-  function toExpenseCreate(data: ExpenseCreateFormData): ExpenseCreate {
-    return {
-      category_id: data.category_id,
-      title: data.title,
-      description: emptyToNull(data.description),
-      amount: data.amount,
-      expense_type: data.expense_type,
-      purchase_date: emptyToNull(data.purchase_date),
-      impact_start_date: data.impact_start_date,
-      impact_end_date: emptyToNull(data.impact_end_date),
-      installments_count: data.installments_count,
-      source_text: emptyToNull(data.source_text),
-    }
-  }
-
-  async function onSubmit(data: ExpenseCreateFormData) {
-    await createExpense.mutateAsync(toExpenseCreate(data))
+  async function onSubmit(data: IncomeCreateFormData) {
+    await createIncome.mutateAsync(toIncomeCreate(data))
     onSubmitted?.(data)
   }
 
@@ -167,7 +133,7 @@ export default function AddExpenseForm({ id, categories, onSubmitted }: Props) {
               <Input
                 {...field}
                 id={field.name}
-                placeholder="Ex.: Conta de luz"
+                placeholder="Ex.: Salário"
                 aria-invalid={fieldState.invalid}
               />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
@@ -182,7 +148,7 @@ export default function AddExpenseForm({ id, categories, onSubmitted }: Props) {
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
                 <FormLabel htmlFor={field.name} required>
-                  Valor total
+                  Valor
                 </FormLabel>
                 <Input
                   {...field}
@@ -194,11 +160,6 @@ export default function AddExpenseForm({ id, categories, onSubmitted }: Props) {
                   placeholder="0,00"
                   aria-invalid={fieldState.invalid}
                 />
-                {isInstallment ? (
-                  <FieldDescription>
-                    Valor total da compra, não da parcela.
-                  </FieldDescription>
-                ) : null}
                 {fieldState.invalid && (
                   <FieldError errors={[fieldState.error]} />
                 )}
@@ -243,12 +204,12 @@ export default function AddExpenseForm({ id, categories, onSubmitted }: Props) {
         </div>
 
         <Controller
-          name="expense_type"
+          name="income_type"
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
               <FormLabel htmlFor={field.name} required>
-                Tipo de despesa
+                Tipo de receita
               </FormLabel>
               <Select value={field.value} onValueChange={field.onChange}>
                 <SelectTrigger
@@ -263,7 +224,7 @@ export default function AddExpenseForm({ id, categories, onSubmitted }: Props) {
                   side="bottom"
                   avoidCollisions={false}
                 >
-                  {Object.entries(EXPENSE_TYPE_LABELS).map(([value, meta]) => (
+                  {Object.entries(INCOME_TYPE_LABELS).map(([value, meta]) => (
                     <SelectItem key={value} value={value}>
                       {meta.label}
                     </SelectItem>
@@ -271,45 +232,19 @@ export default function AddExpenseForm({ id, categories, onSubmitted }: Props) {
                 </SelectContent>
               </Select>
               <FieldDescription>
-                {EXPENSE_TYPE_LABELS[field.value].hint}
+                {INCOME_TYPE_LABELS[field.value].hint}
               </FieldDescription>
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
           )}
         />
 
-        {isInstallment && (
-          <Controller
-            name="installments_count"
-            control={form.control}
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <FormLabel htmlFor={field.name} required>
-                  Nº de parcelas
-                </FormLabel>
-                <Input
-                  {...field}
-                  id={field.name}
-                  type="number"
-                  inputMode="numeric"
-                  step="1"
-                  min="2"
-                  aria-invalid={fieldState.invalid}
-                />
-                {fieldState.invalid && (
-                  <FieldError errors={[fieldState.error]} />
-                )}
-              </Field>
-            )}
-          />
-        )}
-
         <Controller
-          name="purchase_date"
+          name="received_date"
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor={field.name}>Data da compra</FieldLabel>
+              <FieldLabel htmlFor={field.name}>Data de recebimento</FieldLabel>
               <DatePickerField
                 id={field.name}
                 value={field.value}
@@ -317,7 +252,7 @@ export default function AddExpenseForm({ id, categories, onSubmitted }: Props) {
                 ariaInvalid={fieldState.invalid}
               />
               <FieldDescription>
-                Quando a transação aconteceu de verdade.
+                Quando o dinheiro entrou de verdade.
               </FieldDescription>
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
@@ -360,17 +295,12 @@ export default function AddExpenseForm({ id, categories, onSubmitted }: Props) {
                   value={field.value}
                   onChange={field.onChange}
                   ariaInvalid={fieldState.invalid}
-                  disabled={isImpactEndLocked}
-                  clearable={!isImpactEndLocked}
+                  disabled={isOneTime}
+                  clearable={!isOneTime}
                 />
                 {isOneTime ? (
                   <FieldDescription>
-                    Igual ao início para despesas avulsas.
-                  </FieldDescription>
-                ) : null}
-                {isInstallment ? (
-                  <FieldDescription>
-                    Calculado automaticamente pelo número de parcelas.
+                    Igual ao início para receitas pontuais.
                   </FieldDescription>
                 ) : null}
                 {isRecurring && (
@@ -415,7 +345,7 @@ export default function AddExpenseForm({ id, categories, onSubmitted }: Props) {
                 {...field}
                 value={field.value ?? ""}
                 id={field.name}
-                placeholder="Ex.: Cartão BB, PIX, Débito automático"
+                placeholder="Ex.: Empresa, cliente, reembolso"
                 aria-invalid={fieldState.invalid}
               />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
