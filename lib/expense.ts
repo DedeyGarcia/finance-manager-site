@@ -3,21 +3,17 @@ import type { ExpenseRead } from "@/types/expense"
 type MonthlyImpactInput = {
   amount: string | number
   expense_type: ExpenseRead["expense_type"]
-  installments_count: number | null
+  installments_count: number
 }
 
 /** Impacto mensal: amount/installments para parcelamento; senão o amount cheio. */
 export function getMonthlyImpact(expense: MonthlyImpactInput): number {
   const amount =
     typeof expense.amount === "string" ? parseFloat(expense.amount) : expense.amount
-  if (
-    expense.expense_type === "installment" &&
-    expense.installments_count &&
-    expense.installments_count > 0
-  ) {
-    return amount / expense.installments_count
-  }
-  return amount
+
+  return expense.expense_type === "installment"
+    ? amount / expense.installments_count
+    : amount
 }
 
 /**
