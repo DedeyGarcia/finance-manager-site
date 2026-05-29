@@ -5,13 +5,16 @@ import {
   SheetFooter,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
 } from "@/components/ui/sheet"
 
-export default function AddExpenseSheet() {
+type Props = {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+}
+
+export default function AddExpenseSheet({ open, onOpenChange }: Props) {
   return (
-    <Sheet>
-      <SheetTrigger>Open</SheetTrigger>
+    <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent>
         <SheetHeader>
           <SheetTitle>Adicionar Despesa</SheetTitle>
@@ -19,7 +22,7 @@ export default function AddExpenseSheet() {
             Preencha os campos abaixo para adicionar uma despesa.
           </SheetDescription>
         </SheetHeader>
-        <SheetFooter></SheetFooter>
+        <SheetFooter />
       </SheetContent>
     </Sheet>
   )
