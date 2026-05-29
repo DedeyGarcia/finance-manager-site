@@ -2,23 +2,13 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { apiFetch } from "@/lib/api-client"
+import { getMonthlyImpact } from "@/lib/expense"
 import { queryKeys } from "@/lib/query-keys"
 import type { Dashboard } from "@/types/dashboard"
 import type { ExpenseCreate, ExpenseRead } from "@/types/expense"
 
-function toMoney(value: string | number) {
-  return Number(value)
-}
-
 function formatMoney(value: number) {
   return value.toFixed(2)
-}
-
-function getMonthlyImpact(expense: ExpenseCreate) {
-  const amount = toMoney(expense.amount)
-  return expense.expense_type === "installment"
-    ? amount / expense.installments_count
-    : amount
 }
 
 function applyOptimisticExpense(dashboard: Dashboard, expense: ExpenseCreate) {

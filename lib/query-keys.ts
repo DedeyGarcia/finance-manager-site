@@ -69,4 +69,12 @@ export const queryKeys = {
     summary: (params?: DashboardQueryParams) =>
       [...queryKeys.dashboard.all, params ?? {}] as const,
   },
+  expenses: {
+    all: ["expenses"] as const,
+    list: () => [...queryKeys.expenses.all, "list"] as const,
+  },
+  incomes: {
+    all: ["incomes"] as const,
+    list: () => [...queryKeys.incomes.all, "list"] as const,
+  },
 }
