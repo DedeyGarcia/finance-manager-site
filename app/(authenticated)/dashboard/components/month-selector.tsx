@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useIsFetching } from "@tanstack/react-query"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import {
@@ -18,7 +19,6 @@ import {
 } from "@/components/ui/popover"
 import { useMonthStore } from "@/lib/stores/month-store"
 import { cn } from "@/lib/utils"
-import { useDashboard } from "../hooks/use-dashboard"
 
 function capitalize(value: string) {
   return value.charAt(0).toUpperCase() + value.slice(1)
@@ -35,8 +35,8 @@ export default function MonthSelector() {
   const goPrev = useMonthStore((state) => state.goPrev)
   const goNext = useMonthStore((state) => state.goNext)
 
-  // Mesma queryKey do SummaryCard → compartilha cache (sem fetch extra).
-  const { isFetching } = useDashboard()
+  // Indicador global: reflete a query da página atual sem acoplar ao dashboard.
+  const isFetching = useIsFetching() > 0
 
   const [open, setOpen] = useState(false)
   const [viewYear, setViewYear] = useState(year)
