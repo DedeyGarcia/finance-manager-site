@@ -42,7 +42,7 @@ const EXPENSE_TYPE_LABELS: Record<
   { label: string; hint: string }
 > = {
   one_time: {
-    label: "Avulsa",
+    label: "Avulso",
     hint: "Uma única ocorrência em uma data específica.",
   },
   fixed: {

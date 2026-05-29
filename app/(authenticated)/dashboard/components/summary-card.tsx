@@ -82,7 +82,7 @@ export default function SummaryCard() {
             </h2>
           </div>
           <div className="flex min-w-0 flex-col gap-1 xl:px-4">
-            <h4 className="text-sm text-muted-foreground">Avulsas</h4>
+            <h4 className="text-sm text-muted-foreground">Avulsos</h4>
             <h2 className="font-mono text-lg font-medium wrap-break-word">
               {formatCurrency(dashboard.total_one_time_expenses)}
             </h2>

@@ -11,7 +11,7 @@ import { ptBR } from "date-fns/locale"
 import { ExpenseRowActions } from "./expense-row-actions"
 
 export const EXPENSE_TYPE_LABELS: Record<ExpenseRead["expense_type"], string> = {
-  one_time: "Avulsa",
+  one_time: "Avulso",
   fixed: "Fixo",
   automatic_debit: "Débito automático",
   installment: "Parcela",
