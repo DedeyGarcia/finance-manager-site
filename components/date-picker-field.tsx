@@ -85,7 +85,7 @@ export function DatePickerField({
           size="icon"
           aria-label="Limpar data"
           onClick={() => onChange("")}
-          className="absolute top-1/2 right-1 size-6 -translate-y-1/2 text-muted-foreground !transition-colors hover:bg-muted hover:text-foreground active:!scale-100 active:!-translate-y-1/2"
+          className="absolute top-1/2 right-1 size-6 -translate-y-1/2 text-muted-foreground !transition-colors hover:bg-muted hover:text-foreground active:!scale-[0.98] active:!translate-y-[calc(-50%+0.5px)]"
         >
           <XIcon className="h-3.5 w-3.5" />
         </Button>
