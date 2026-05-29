@@ -28,6 +28,8 @@ import {
   type ExpenseCreateFormInput,
 } from "@/lib/schemas/expense"
 import type { Category } from "@/types/category"
+import { ExpenseCreate } from "@/types/expense"
+import { useCreateExpense } from "../hooks/use-create-expense"
 
 type Props = {
   id: string
@@ -58,6 +60,8 @@ const EXPENSE_TYPE_LABELS: Record<
 }
 
 export default function AddExpenseForm({ id, categories, onSubmitted }: Props) {
+  const createExpense = useCreateExpense()
+
   const form = useForm<ExpenseCreateFormInput, unknown, ExpenseCreateFormData>({
     resolver: zodResolver(expenseCreateSchema),
     defaultValues: {
@@ -83,6 +87,10 @@ export default function AddExpenseForm({ id, categories, onSubmitted }: Props) {
   const isInstallment = expenseType === "installment"
   const isRecurring =
     expenseType === "fixed" || expenseType === "automatic_debit"
+  const impactStartDescription =
+    expenseType === "automatic_debit" || isInstallment
+      ? "Vencimento da fatura ou data do pagamento."
+      : "Data em que foi realizado o pagamento"
 
   useEffect(() => {
     form.setValue("installments_count", isInstallment ? "2" : "1", {
@@ -108,8 +116,27 @@ export default function AddExpenseForm({ id, categories, onSubmitted }: Props) {
     void form.trigger(["impact_end_date", "installments_count"])
   }, [expenseType, isSubmitted, form])
 
+  function emptyToNull(value: string | undefined) {
+    return value?.trim() ? value.trim() : null
+  }
+
+  function toExpenseCreate(data: ExpenseCreateFormData): ExpenseCreate {
+    return {
+      category_id: data.category_id,
+      title: data.title,
+      description: emptyToNull(data.description),
+      amount: data.amount,
+      expense_type: data.expense_type,
+      purchase_date: emptyToNull(data.purchase_date),
+      impact_start_date: data.impact_start_date,
+      impact_end_date: emptyToNull(data.impact_end_date),
+      installments_count: data.installments_count,
+      source_text: emptyToNull(data.source_text),
+    }
+  }
+
   async function onSubmit(data: ExpenseCreateFormData) {
-    // TODO: integrar com mutation TanStack
+    await createExpense.mutateAsync(toExpenseCreate(data))
     onSubmitted?.(data)
   }
 
@@ -299,9 +326,7 @@ export default function AddExpenseForm({ id, categories, onSubmitted }: Props) {
                   onChange={field.onChange}
                   ariaInvalid={fieldState.invalid}
                 />
-                <FieldDescription>
-                  Vencimento da fatura ou data do pagamento.
-                </FieldDescription>
+                <FieldDescription>{impactStartDescription}</FieldDescription>
                 {fieldState.invalid && (
                   <FieldError errors={[fieldState.error]} />
                 )}

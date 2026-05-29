@@ -1,0 +1,4 @@
+import type { components } from "@/docs/api.types"
+
+export type ExpenseCreate = components["schemas"]["ExpenseCreate"]
+export type ExpenseRead = components["schemas"]["ExpenseRead"]
