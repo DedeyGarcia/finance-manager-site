@@ -8,7 +8,7 @@ import type { ExpenseRead } from "@/types/expense"
 import type { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
-import { DeleteExpenseButton } from "./delete-expense-button"
+import { ExpenseRowActions } from "./expense-row-actions"
 
 export const EXPENSE_TYPE_LABELS: Record<ExpenseRead["expense_type"], string> = {
   one_time: "Avulsa",
@@ -95,7 +95,8 @@ export function getExpenseColumns(
     },
     {
       id: "actions",
-      cell: ({ row }) => <DeleteExpenseButton expense={row.original} />,
+      header: "Ações",
+      cell: ({ row }) => <ExpenseRowActions expense={row.original} />,
     },
   ]
 }

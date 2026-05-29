@@ -7,7 +7,7 @@ import type { IncomeRead } from "@/types/income"
 import type { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
-import { DeleteIncomeButton } from "./delete-income-button"
+import { IncomeRowActions } from "./income-row-actions"
 
 export const INCOME_TYPE_LABELS: Record<IncomeRead["income_type"], string> = {
   one_time: "Avulsa",
@@ -68,7 +68,8 @@ export function getIncomeColumns(
     },
     {
       id: "actions",
-      cell: ({ row }) => <DeleteIncomeButton income={row.original} />,
+      header: "Ações",
+      cell: ({ row }) => <IncomeRowActions income={row.original} />,
     },
   ]
 }
