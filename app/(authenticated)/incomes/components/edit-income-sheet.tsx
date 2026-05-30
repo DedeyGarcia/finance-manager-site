@@ -2,35 +2,37 @@
 
 import { Button } from "@/components/ui/button"
 import { ResponsiveSheet } from "@/components/responsive-sheet"
-import type { Category } from "@/types/category"
-import { useCreateIncome } from "../hooks/use-create-income"
 import IncomeForm, {
-  getIncomeFormDefaults,
+  incomeToFormInput,
   toIncomePayload,
-} from "./income-form"
+} from "@/app/(authenticated)/dashboard/components/income-form"
+import type { Category } from "@/types/category"
+import type { IncomeRead } from "@/types/income"
+import { useUpdateIncome } from "../hooks/use-update-income"
 
 type Props = {
+  income: IncomeRead
+  categories: Category[]
   open: boolean
   onOpenChange: (open: boolean) => void
-  categories: Category[]
 }
 
-const FORM_ID = "add-income-form"
+const FORM_ID = "edit-income-form"
 
-export default function AddIncomeSheet({
+export default function EditIncomeSheet({
+  income,
+  categories,
   open,
   onOpenChange,
-  categories,
 }: Props) {
-  const incomeCategories = categories.filter((c) => c.kind === "income")
-  const createIncome = useCreateIncome()
+  const updateIncome = useUpdateIncome()
 
   return (
     <ResponsiveSheet
       open={open}
       onOpenChange={onOpenChange}
-      title="Adicionar Receita"
-      description="Preencha os campos abaixo para adicionar uma receita."
+      title="Editar Receita"
+      description="Atualize os campos abaixo para editar a receita."
       footer={
         <>
           <Button
@@ -48,10 +50,13 @@ export default function AddIncomeSheet({
     >
       <IncomeForm
         id={FORM_ID}
-        categories={incomeCategories}
-        defaultValues={getIncomeFormDefaults()}
+        categories={categories}
+        defaultValues={incomeToFormInput(income)}
         onSubmit={async (data) => {
-          createIncome.mutate(toIncomePayload(data))
+          updateIncome.mutate({
+            id: income.id,
+            input: toIncomePayload(data),
+          })
           onOpenChange(false)
         }}
       />

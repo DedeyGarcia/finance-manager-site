@@ -3,7 +3,11 @@
 import { Button } from "@/components/ui/button"
 import { ResponsiveSheet } from "@/components/responsive-sheet"
 import type { Category } from "@/types/category"
-import AddExpenseForm from "./add-expense-form"
+import { useCreateExpense } from "../hooks/use-create-expense"
+import ExpenseForm, {
+  getExpenseFormDefaults,
+  toExpensePayload,
+} from "./expense-form"
 
 type Props = {
   open: boolean
@@ -19,6 +23,7 @@ export default function AddExpenseSheet({
   categories,
 }: Props) {
   const expenseCategories = categories.filter((c) => c.kind === "expense")
+  const createExpense = useCreateExpense()
 
   return (
     <ResponsiveSheet
@@ -41,10 +46,14 @@ export default function AddExpenseSheet({
         </>
       }
     >
-      <AddExpenseForm
+      <ExpenseForm
         id={FORM_ID}
         categories={expenseCategories}
-        onSubmitted={() => onOpenChange(false)}
+        defaultValues={getExpenseFormDefaults()}
+        onSubmit={async (data) => {
+          createExpense.mutate(toExpensePayload(data))
+          onOpenChange(false)
+        }}
       />
     </ResponsiveSheet>
   )

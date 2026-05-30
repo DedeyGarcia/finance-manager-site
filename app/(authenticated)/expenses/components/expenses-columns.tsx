@@ -2,8 +2,9 @@
 
 import { DataTableSortHeader } from "@/components/ui/data-table"
 import { Badge } from "@/components/ui/badge"
-import { getMonthlyImpact } from "@/lib/expense"
+import { getCurrentInstallment, getMonthlyImpact } from "@/lib/expense"
 import { formatCurrency } from "@/lib/utils"
+import type { Category } from "@/types/category"
 import type { ExpenseRead } from "@/types/expense"
 import type { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
@@ -29,8 +30,19 @@ function formatVigencia(start: string, end: string | null) {
   return end ? `${formatMonth(start)} → ${formatMonth(end)}` : `${formatMonth(start)} → ∞`
 }
 
+/** Rótulo de parcela para a coluna Impacto/mês. */
+function installmentLabel(expense: ExpenseRead, periodStart: string): string | null {
+  if (expense.expense_type !== "installment") return null
+  const total = expense.installments_count
+  const current = getCurrentInstallment(expense.impact_start_date, periodStart)
+  // Fora da vigência do parcelamento mostra só o total (ex: "12×").
+  return current >= 1 && current <= total ? `${current}/${total}` : `${total}×`
+}
+
 export function getExpenseColumns(
-  categoryName: (id: string | null) => string
+  categoryName: (id: string | null) => string,
+  categories: Category[],
+  periodStart: string
 ): ColumnDef<ExpenseRead>[] {
   return [
     {
@@ -78,11 +90,21 @@ export function getExpenseColumns(
       header: ({ column }) => (
         <DataTableSortHeader column={column} label="Impacto/mês" />
       ),
-      cell: ({ row }) => (
-        <span className="font-mono">
-          {formatCurrency(getMonthlyImpact(row.original))}
-        </span>
-      ),
+      cell: ({ row }) => {
+        const installment = installmentLabel(row.original, periodStart)
+        return (
+          <div className="flex items-baseline gap-1.5">
+            <span className="font-mono">
+              {formatCurrency(getMonthlyImpact(row.original))}
+            </span>
+            {installment && (
+              <span className="font-mono text-xs text-muted-foreground">
+                {installment}
+              </span>
+            )}
+          </div>
+        )
+      },
       sortingFn: "basic",
     },
     {
@@ -96,7 +118,9 @@ export function getExpenseColumns(
     {
       id: "actions",
       header: "Ações",
-      cell: ({ row }) => <ExpenseRowActions expense={row.original} />,
+      cell: ({ row }) => (
+        <ExpenseRowActions expense={row.original} categories={categories} />
+      ),
     },
   ]
 }

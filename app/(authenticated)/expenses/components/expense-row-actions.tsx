@@ -17,13 +17,22 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import type { Category } from "@/types/category"
 import type { ExpenseRead } from "@/types/expense"
-import { MoreVerticalIcon, Trash2Icon } from "lucide-react"
+import { MoreVerticalIcon, PencilIcon, Trash2Icon } from "lucide-react"
 import { useState } from "react"
 import { useDeleteExpense } from "../hooks/use-delete-expense"
+import EditExpenseSheet from "./edit-expense-sheet"
 
-export function ExpenseRowActions({ expense }: { expense: ExpenseRead }) {
+export function ExpenseRowActions({
+  expense,
+  categories,
+}: {
+  expense: ExpenseRead
+  categories: Category[]
+}) {
   const [confirmOpen, setConfirmOpen] = useState(false)
+  const [editOpen, setEditOpen] = useState(false)
   const deleteExpense = useDeleteExpense()
 
   return (
@@ -40,6 +49,10 @@ export function ExpenseRowActions({ expense }: { expense: ExpenseRead }) {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
+          <DropdownMenuItem onSelect={() => setEditOpen(true)}>
+            <PencilIcon />
+            Editar
+          </DropdownMenuItem>
           <DropdownMenuItem
             variant="destructive"
             onSelect={() => setConfirmOpen(true)}
@@ -49,6 +62,13 @@ export function ExpenseRowActions({ expense }: { expense: ExpenseRead }) {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <EditExpenseSheet
+        expense={expense}
+        categories={categories}
+        open={editOpen}
+        onOpenChange={setEditOpen}
+      />
 
       <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <AlertDialogContent>

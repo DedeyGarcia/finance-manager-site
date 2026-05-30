@@ -2,35 +2,37 @@
 
 import { Button } from "@/components/ui/button"
 import { ResponsiveSheet } from "@/components/responsive-sheet"
+import ExpenseForm, {
+  expenseToFormInput,
+  toExpensePayload,
+} from "@/app/(authenticated)/dashboard/components/expense-form"
 import type { Category } from "@/types/category"
-import { useCreateIncome } from "../hooks/use-create-income"
-import IncomeForm, {
-  getIncomeFormDefaults,
-  toIncomePayload,
-} from "./income-form"
+import type { ExpenseRead } from "@/types/expense"
+import { useUpdateExpense } from "../hooks/use-update-expense"
 
 type Props = {
+  expense: ExpenseRead
+  categories: Category[]
   open: boolean
   onOpenChange: (open: boolean) => void
-  categories: Category[]
 }
 
-const FORM_ID = "add-income-form"
+const FORM_ID = "edit-expense-form"
 
-export default function AddIncomeSheet({
+export default function EditExpenseSheet({
+  expense,
+  categories,
   open,
   onOpenChange,
-  categories,
 }: Props) {
-  const incomeCategories = categories.filter((c) => c.kind === "income")
-  const createIncome = useCreateIncome()
+  const updateExpense = useUpdateExpense()
 
   return (
     <ResponsiveSheet
       open={open}
       onOpenChange={onOpenChange}
-      title="Adicionar Receita"
-      description="Preencha os campos abaixo para adicionar uma receita."
+      title="Editar Gasto"
+      description="Atualize os campos abaixo para editar o gasto."
       footer={
         <>
           <Button
@@ -46,12 +48,15 @@ export default function AddIncomeSheet({
         </>
       }
     >
-      <IncomeForm
+      <ExpenseForm
         id={FORM_ID}
-        categories={incomeCategories}
-        defaultValues={getIncomeFormDefaults()}
+        categories={categories}
+        defaultValues={expenseToFormInput(expense)}
         onSubmit={async (data) => {
-          createIncome.mutate(toIncomePayload(data))
+          updateExpense.mutate({
+            id: expense.id,
+            input: toExpensePayload(data),
+          })
           onOpenChange(false)
         }}
       />

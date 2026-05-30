@@ -38,7 +38,10 @@ export function IncomesTable({ categories }: { categories: Category[] }) {
     return (id: string | null) => (id ? (map.get(id) ?? "—") : "—")
   }, [incomeCategories])
 
-  const columns = useMemo(() => getIncomeColumns(categoryName), [categoryName])
+  const columns = useMemo(
+    () => getIncomeColumns(categoryName, incomeCategories),
+    [categoryName, incomeCategories]
+  )
 
   const monthLabel = format(new Date(year, month - 1, 1), "MMM/yy", {
     locale: ptBR,

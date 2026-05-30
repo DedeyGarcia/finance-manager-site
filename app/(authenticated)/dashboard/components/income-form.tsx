@@ -28,13 +28,13 @@ import {
   type IncomeCreateFormInput,
 } from "@/lib/schemas/income"
 import type { Category } from "@/types/category"
-import type { IncomeCreate } from "@/types/income"
-import { useCreateIncome } from "../hooks/use-create-income"
+import type { IncomeCreate, IncomeRead, IncomeUpdate } from "@/types/income"
 
 type Props = {
   id: string
   categories: Category[]
-  onSubmitted?: (data: IncomeCreateFormData) => void
+  defaultValues: IncomeCreateFormInput
+  onSubmit: (data: IncomeCreateFormData) => Promise<void>
 }
 
 const INCOME_TYPE_LABELS: Record<
@@ -55,7 +55,41 @@ function emptyToNull(value: string | undefined) {
   return value?.trim() ? value.trim() : null
 }
 
-function toIncomeCreate(data: IncomeCreateFormData): IncomeCreate {
+/** Valores iniciais para o formulário de criação. */
+export function getIncomeFormDefaults(): IncomeCreateFormInput {
+  const today = format(new Date(), "yyyy-MM-dd")
+  return {
+    title: "",
+    description: "",
+    amount: "",
+    category_id: "",
+    income_type: "one_time",
+    received_date: "",
+    impact_start_date: today,
+    impact_end_date: today,
+    source_text: "",
+  }
+}
+
+/** Converte uma receita existente nos valores do formulário (modo edição). */
+export function incomeToFormInput(income: IncomeRead): IncomeCreateFormInput {
+  return {
+    title: income.title,
+    description: income.description ?? "",
+    amount: income.amount,
+    category_id: income.category_id ?? "",
+    income_type: income.income_type,
+    received_date: income.received_date ?? "",
+    impact_start_date: income.impact_start_date,
+    impact_end_date: income.impact_end_date ?? "",
+    source_text: income.source_text ?? "",
+  }
+}
+
+/** Mapeia os dados validados do form para o payload da API (create/update). */
+export function toIncomePayload(
+  data: IncomeCreateFormData
+): IncomeCreate & IncomeUpdate {
   return {
     category_id: data.category_id,
     title: data.title,
@@ -69,22 +103,15 @@ function toIncomeCreate(data: IncomeCreateFormData): IncomeCreate {
   }
 }
 
-export default function AddIncomeForm({ id, categories, onSubmitted }: Props) {
-  const createIncome = useCreateIncome()
-
+export default function IncomeForm({
+  id,
+  categories,
+  defaultValues,
+  onSubmit,
+}: Props) {
   const form = useForm<IncomeCreateFormInput, unknown, IncomeCreateFormData>({
     resolver: zodResolver(incomeCreateSchema),
-    defaultValues: {
-      title: "",
-      description: "",
-      amount: "",
-      category_id: "",
-      income_type: "one_time",
-      received_date: "",
-      impact_start_date: format(new Date(), "yyyy-MM-dd"),
-      impact_end_date: format(new Date(), "yyyy-MM-dd"),
-      source_text: "",
-    },
+    defaultValues,
   })
 
   const [incomeType, impactStartDate] = useWatch({
@@ -113,11 +140,6 @@ export default function AddIncomeForm({ id, categories, onSubmitted }: Props) {
 
     void form.trigger("impact_end_date")
   }, [incomeType, isSubmitted, form])
-
-  async function onSubmit(data: IncomeCreateFormData) {
-    await createIncome.mutateAsync(toIncomeCreate(data))
-    onSubmitted?.(data)
-  }
 
   return (
     <form id={id} onSubmit={form.handleSubmit(onSubmit)}>

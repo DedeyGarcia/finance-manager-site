@@ -3,6 +3,7 @@
 import { Badge } from "@/components/ui/badge"
 import { DataTableSortHeader } from "@/components/ui/data-table"
 import { formatCurrency } from "@/lib/utils"
+import type { Category } from "@/types/category"
 import type { IncomeRead } from "@/types/income"
 import type { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
@@ -23,7 +24,8 @@ function formatVigencia(start: string, end: string | null) {
 }
 
 export function getIncomeColumns(
-  categoryName: (id: string | null) => string
+  categoryName: (id: string | null) => string,
+  categories: Category[]
 ): ColumnDef<IncomeRead>[] {
   return [
     {
@@ -69,7 +71,9 @@ export function getIncomeColumns(
     {
       id: "actions",
       header: "Ações",
-      cell: ({ row }) => <IncomeRowActions income={row.original} />,
+      cell: ({ row }) => (
+        <IncomeRowActions income={row.original} categories={categories} />
+      ),
     },
   ]
 }

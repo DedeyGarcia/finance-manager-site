@@ -38,7 +38,15 @@ export function ExpensesTable({ categories }: { categories: Category[] }) {
     return (id: string | null) => (id ? (map.get(id) ?? "—") : "—")
   }, [expenseCategories])
 
-  const columns = useMemo(() => getExpenseColumns(categoryName), [categoryName])
+  const { period_start, period_end } = useMemo(
+    () => monthToPeriod({ year, month }),
+    [year, month]
+  )
+
+  const columns = useMemo(
+    () => getExpenseColumns(categoryName, expenseCategories, period_start!),
+    [categoryName, expenseCategories, period_start]
+  )
 
   const monthLabel = format(new Date(year, month - 1, 1), "MMM/yy", {
     locale: ptBR,
@@ -118,7 +126,6 @@ export function ExpensesTable({ categories }: { categories: Category[] }) {
         </div>
       )}
       footer={(table) => {
-        const { period_start, period_end } = monthToPeriod({ year, month })
         const total = table.getFilteredRowModel().rows.reduce((sum, row) => {
           const expense = row.original
           return isActiveInPeriod(

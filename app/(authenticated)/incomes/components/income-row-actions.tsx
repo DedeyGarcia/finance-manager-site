@@ -17,13 +17,22 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import type { Category } from "@/types/category"
 import type { IncomeRead } from "@/types/income"
-import { MoreVerticalIcon, Trash2Icon } from "lucide-react"
+import { MoreVerticalIcon, PencilIcon, Trash2Icon } from "lucide-react"
 import { useState } from "react"
 import { useDeleteIncome } from "../hooks/use-delete-income"
+import EditIncomeSheet from "./edit-income-sheet"
 
-export function IncomeRowActions({ income }: { income: IncomeRead }) {
+export function IncomeRowActions({
+  income,
+  categories,
+}: {
+  income: IncomeRead
+  categories: Category[]
+}) {
   const [confirmOpen, setConfirmOpen] = useState(false)
+  const [editOpen, setEditOpen] = useState(false)
   const deleteIncome = useDeleteIncome()
 
   return (
@@ -40,6 +49,10 @@ export function IncomeRowActions({ income }: { income: IncomeRead }) {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
+          <DropdownMenuItem onSelect={() => setEditOpen(true)}>
+            <PencilIcon />
+            Editar
+          </DropdownMenuItem>
           <DropdownMenuItem
             variant="destructive"
             onSelect={() => setConfirmOpen(true)}
@@ -49,6 +62,13 @@ export function IncomeRowActions({ income }: { income: IncomeRead }) {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <EditIncomeSheet
+        income={income}
+        categories={categories}
+        open={editOpen}
+        onOpenChange={setEditOpen}
+      />
 
       <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <AlertDialogContent>

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 import { Controller, useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { addMonths, format, isValid, parse } from "date-fns"
@@ -28,13 +28,13 @@ import {
   type ExpenseCreateFormInput,
 } from "@/lib/schemas/expense"
 import type { Category } from "@/types/category"
-import { ExpenseCreate } from "@/types/expense"
-import { useCreateExpense } from "../hooks/use-create-expense"
+import { ExpenseCreate, ExpenseRead, ExpenseUpdate } from "@/types/expense"
 
 type Props = {
   id: string
   categories: Category[]
-  onSubmitted?: (data: ExpenseCreateFormData) => void
+  defaultValues: ExpenseCreateFormInput
+  onSubmit: (data: ExpenseCreateFormData) => Promise<void>
 }
 
 const EXPENSE_TYPE_LABELS: Record<
@@ -59,23 +59,70 @@ const EXPENSE_TYPE_LABELS: Record<
   },
 }
 
-export default function AddExpenseForm({ id, categories, onSubmitted }: Props) {
-  const createExpense = useCreateExpense()
+function emptyToNull(value: string | undefined) {
+  return value?.trim() ? value.trim() : null
+}
 
+/** Valores iniciais para o formulário de criação. */
+export function getExpenseFormDefaults(): ExpenseCreateFormInput {
+  const today = format(new Date(), "yyyy-MM-dd")
+  return {
+    title: "",
+    description: "",
+    amount: "",
+    category_id: "",
+    expense_type: "one_time",
+    installments_count: "1",
+    impact_start_date: today,
+    impact_end_date: today,
+    purchase_date: "",
+    source_text: "",
+  }
+}
+
+/** Converte um gasto existente nos valores do formulário (modo edição). */
+export function expenseToFormInput(expense: ExpenseRead): ExpenseCreateFormInput {
+  return {
+    title: expense.title,
+    description: expense.description ?? "",
+    amount: expense.amount,
+    category_id: expense.category_id ?? "",
+    expense_type: expense.expense_type,
+    installments_count: String(expense.installments_count),
+    impact_start_date: expense.impact_start_date,
+    impact_end_date: expense.impact_end_date ?? "",
+    purchase_date: expense.purchase_date ?? "",
+    source_text: expense.source_text ?? "",
+  }
+}
+
+/** Mapeia os dados validados do form para o payload da API (create/update). */
+export function toExpensePayload(
+  data: ExpenseCreateFormData
+): ExpenseCreate & ExpenseUpdate {
+  return {
+    category_id: data.category_id,
+    title: data.title,
+    description: emptyToNull(data.description),
+    amount: data.amount,
+    expense_type: data.expense_type,
+    purchase_date: emptyToNull(data.purchase_date),
+    impact_start_date: data.impact_start_date,
+    impact_end_date: emptyToNull(data.impact_end_date),
+    installments_count: data.installments_count,
+    source_text: emptyToNull(data.source_text),
+  }
+}
+
+export default function ExpenseForm({
+  id,
+  categories,
+  defaultValues,
+  onSubmit,
+}: Props) {
   const form = useForm<ExpenseCreateFormInput, unknown, ExpenseCreateFormData>({
     resolver: zodResolver(expenseCreateSchema),
-    defaultValues: {
-      title: "",
-      description: "",
-      amount: "",
-      category_id: "",
-      expense_type: "one_time",
-      installments_count: "1",
-      impact_start_date: format(new Date(), "yyyy-MM-dd"),
-      impact_end_date: format(new Date(), "yyyy-MM-dd"),
-      purchase_date: "",
-      source_text: "",
-    },
+    defaultValues,
   })
 
   const [expenseType, impactStartDate, installmentsCount] = useWatch({
@@ -94,11 +141,17 @@ export default function AddExpenseForm({ id, categories, onSubmitted }: Props) {
       ? "Vencimento da fatura ou data do pagamento."
       : "Data em que foi realizado o pagamento"
 
+  // Reseta o nº de parcelas ao TROCAR o tipo, mas preserva o valor inicial
+  // (essencial no modo edição de um parcelamento já existente). Baseado na
+  // mudança real do valor — imune ao double-invoke de effects do StrictMode.
+  const prevType = useRef(defaultValues.expense_type)
   useEffect(() => {
+    if (prevType.current === expenseType) return
+    prevType.current = expenseType
     form.setValue("installments_count", isInstallment ? "2" : "1", {
       shouldValidate: true,
     })
-  }, [isInstallment, form])
+  }, [expenseType, isInstallment, form])
 
   useEffect(() => {
     if (!isOneTime) return
@@ -128,30 +181,6 @@ export default function AddExpenseForm({ id, categories, onSubmitted }: Props) {
 
     void form.trigger(["impact_end_date", "installments_count"])
   }, [expenseType, isSubmitted, form])
-
-  function emptyToNull(value: string | undefined) {
-    return value?.trim() ? value.trim() : null
-  }
-
-  function toExpenseCreate(data: ExpenseCreateFormData): ExpenseCreate {
-    return {
-      category_id: data.category_id,
-      title: data.title,
-      description: emptyToNull(data.description),
-      amount: data.amount,
-      expense_type: data.expense_type,
-      purchase_date: emptyToNull(data.purchase_date),
-      impact_start_date: data.impact_start_date,
-      impact_end_date: emptyToNull(data.impact_end_date),
-      installments_count: data.installments_count,
-      source_text: emptyToNull(data.source_text),
-    }
-  }
-
-  async function onSubmit(data: ExpenseCreateFormData) {
-    await createExpense.mutateAsync(toExpenseCreate(data))
-    onSubmitted?.(data)
-  }
 
   return (
     <form id={id} onSubmit={form.handleSubmit(onSubmit)}>

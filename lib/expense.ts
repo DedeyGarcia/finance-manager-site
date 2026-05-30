@@ -1,6 +1,8 @@
+import { differenceInCalendarMonths } from "date-fns"
+
 import type { ExpenseRead } from "@/types/expense"
 
-type MonthlyImpactInput = {
+export type MonthlyImpactInput = {
   amount: string | number
   expense_type: ExpenseRead["expense_type"]
   installments_count: number
@@ -11,9 +13,21 @@ export function getMonthlyImpact(expense: MonthlyImpactInput): number {
   const amount =
     typeof expense.amount === "string" ? parseFloat(expense.amount) : expense.amount
 
-  return expense.expense_type === "installment"
-    ? amount / expense.installments_count
-    : amount
+  return amount / expense.installments_count
+}
+
+/**
+ * Número da parcela atual relativa ao período selecionado (CLAUDE.md):
+ *   parcela_atual = diferença_meses(impact_start_date, period_start) + 1
+ * Datas em ISO "yyyy-MM-dd".
+ */
+export function getCurrentInstallment(
+  impactStart: string,
+  periodStart: string
+): number {
+  const start = new Date(`${impactStart}T00:00:00`)
+  const period = new Date(`${periodStart}T00:00:00`)
+  return differenceInCalendarMonths(period, start) + 1
 }
 
 /**
