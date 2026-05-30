@@ -3,6 +3,7 @@
 import { format, parse, isValid } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { CalendarIcon, XIcon } from "lucide-react"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import {
@@ -41,10 +42,11 @@ export function DatePickerField({
   clearable = true,
 }: Props) {
   const selected = parseIso(value)
+  const [open, setOpen] = useState(false)
 
   return (
     <div className="relative">
-      <Popover>
+      <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
             id={id}
@@ -71,7 +73,10 @@ export function DatePickerField({
           <Calendar
             mode="single"
             selected={selected}
-            onSelect={(date) => onChange(date ? format(date, ISO) : "")}
+            onSelect={(date) => {
+              onChange(date ? format(date, ISO) : "")
+              setOpen(false)
+            }}
             locale={ptBR}
             autoFocus
           />
