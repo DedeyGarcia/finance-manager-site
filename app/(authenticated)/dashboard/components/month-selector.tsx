@@ -9,6 +9,7 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   Loader2Icon,
+  Undo2Icon,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -17,6 +18,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { getCurrentMonth } from "@/lib/month-period"
 import { useMonthStore } from "@/lib/stores/month-store"
 import { cn } from "@/lib/utils"
 
@@ -34,6 +36,10 @@ export default function MonthSelector() {
   const setMonth = useMonthStore((state) => state.setMonth)
   const goPrev = useMonthStore((state) => state.goPrev)
   const goNext = useMonthStore((state) => state.goNext)
+  const goToday = useMonthStore((state) => state.goToday)
+
+  const today = getCurrentMonth()
+  const isCurrentMonth = year === today.year && month === today.month
 
   // Indicador global: reflete a query da página atual sem acoplar ao dashboard.
   const isFetching = useIsFetching() > 0
@@ -133,6 +139,20 @@ export default function MonthSelector() {
       >
         <ChevronRightIcon />
       </Button>
+
+      {!isCurrentMonth && (
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          aria-label="Voltar para o mês atual"
+          title="Voltar para o mês atual"
+          onClick={goToday}
+          className="size-7 rounded-full"
+        >
+          <Undo2Icon className="size-3.5" />
+        </Button>
+      )}
     </div>
   )
 }

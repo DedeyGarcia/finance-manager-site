@@ -9,6 +9,7 @@ type MonthState = {
   setMonth: (year: number, month: number) => void
   goPrev: () => void
   goNext: () => void
+  goToday: () => void
 }
 
 export const useMonthStore = create<MonthState>((set) => ({
@@ -26,4 +27,5 @@ export const useMonthStore = create<MonthState>((set) => ({
         ? { year: state.year + 1, month: 1 }
         : { month: state.month + 1 }
     ),
+  goToday: () => set(getCurrentMonth()),
 }))
