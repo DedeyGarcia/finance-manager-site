@@ -22,6 +22,9 @@ export default async function ExpensesPage() {
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <div className="flex flex-1 flex-col px-4 py-4 sm:px-8">
+        <h1 className="mb-2 font-serif text-4xl font-bold italic">
+          Meus Gastos
+        </h1>
         <ExpensesTable categories={categories} />
       </div>
     </HydrationBoundary>

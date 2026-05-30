@@ -18,14 +18,11 @@ export default function SummaryCard() {
   const totalExpenses = parseFloat(dashboard.total_expenses)
 
   const spentPercentage =
-    totalIncomes > 0 ? (totalExpenses / totalIncomes) * 100 : 0
+    totalIncomes > 0 ? (totalExpenses / totalIncomes) * 100 : 100
 
   return (
     <Card
-      className={cn(
-        "transition-opacity",
-        isPlaceholderData && "opacity-60"
-      )}
+      className={cn("transition-opacity", isPlaceholderData && "opacity-60")}
     >
       <CardContent className="space-y-2">
         <h3 className="text-sm font-medium text-muted-foreground">
@@ -51,13 +48,16 @@ export default function SummaryCard() {
             htmlFor="spent-percentage"
             className="flex-wrap font-mono"
           >
-            <span>Já gastei · {spentPercentage.toFixed(2)}%</span>
-            <span className="ml-auto">
+            <p>Já gastei · {spentPercentage.toFixed(2)}%</p>
+            <p className="ml-auto">
               {formatCurrency(dashboard.total_expenses)} /{" "}
               {formatCurrency(dashboard.total_incomes)}
-            </span>
+            </p>
           </FieldLabel>
-          <Progress value={spentPercentage} id="spent-percentage" />
+          <Progress
+            value={Math.min(spentPercentage, 100)}
+            id="spent-percentage"
+          />
         </Field>
 
         <Separator orientation="horizontal" className="my-4" />
