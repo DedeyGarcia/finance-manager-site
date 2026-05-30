@@ -3,6 +3,7 @@
 import { DataTableSortHeader } from "@/components/ui/data-table"
 import { Badge } from "@/components/ui/badge"
 import { getCurrentInstallment, getMonthlyImpactInPeriod } from "@/lib/expense"
+import { EXPENSE_TYPE_META } from "@/lib/transaction-labels"
 import { formatCurrency } from "@/lib/utils"
 import type { Category } from "@/types/category"
 import type { ExpenseRead } from "@/types/expense"
@@ -10,14 +11,6 @@ import type { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { ExpenseRowActions } from "./expense-row-actions"
-
-export const EXPENSE_TYPE_LABELS: Record<ExpenseRead["expense_type"], string> =
-  {
-    one_time: "Avulso",
-    fixed: "Fixo",
-    automatic_debit: "Débito automático",
-    installment: "Parcela",
-  }
 
 function formatMonth(iso: string) {
   return format(new Date(`${iso}T00:00:00`), "MMM/yy", { locale: ptBR })
@@ -69,7 +62,7 @@ export function getExpenseColumns(
         const installment = installmentLabel(row.original, periodStart)
         return (
           <Badge variant="secondary">
-            {EXPENSE_TYPE_LABELS[row.original.expense_type]}
+            {EXPENSE_TYPE_META[row.original.expense_type].label}
             {installment && (
               <span className="font-mono text-muted-foreground">
                 · {installment}

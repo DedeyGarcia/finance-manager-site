@@ -27,6 +27,7 @@ import {
   type IncomeCreateFormData,
   type IncomeCreateFormInput,
 } from "@/lib/schemas/income"
+import { INCOME_TYPE_META } from "@/lib/transaction-labels"
 import type { Category } from "@/types/category"
 import type { IncomeCreate, IncomeRead, IncomeUpdate } from "@/types/income"
 
@@ -35,20 +36,6 @@ type Props = {
   categories: Category[]
   defaultValues: IncomeCreateFormInput
   onSubmit: (data: IncomeCreateFormData) => Promise<void>
-}
-
-const INCOME_TYPE_LABELS: Record<
-  IncomeCreateFormData["income_type"],
-  { label: string; hint: string }
-> = {
-  one_time: {
-    label: "Pontual",
-    hint: "Uma entrada única em uma data específica.",
-  },
-  recurring: {
-    label: "Recorrente",
-    hint: "Entrada que se repete mensalmente.",
-  },
 }
 
 function emptyToNull(value: string | undefined) {
@@ -246,7 +233,7 @@ export default function IncomeForm({
                   side="bottom"
                   avoidCollisions={false}
                 >
-                  {Object.entries(INCOME_TYPE_LABELS).map(([value, meta]) => (
+                  {Object.entries(INCOME_TYPE_META).map(([value, meta]) => (
                     <SelectItem key={value} value={value}>
                       {meta.label}
                     </SelectItem>
@@ -254,7 +241,7 @@ export default function IncomeForm({
                 </SelectContent>
               </Select>
               <FieldDescription>
-                {INCOME_TYPE_LABELS[field.value].hint}
+                {INCOME_TYPE_META[field.value].hint}
               </FieldDescription>
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>

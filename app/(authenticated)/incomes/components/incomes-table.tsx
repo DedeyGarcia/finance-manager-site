@@ -14,6 +14,7 @@ import {
 import { TableCell, TableRow } from "@/components/ui/table"
 import { isActiveInPeriod } from "@/lib/expense"
 import { monthToPeriod } from "@/lib/month-period"
+import { INCOME_TYPE_META } from "@/lib/transaction-labels"
 import { useMonthStore } from "@/lib/stores/month-store"
 import { formatCurrency } from "@/lib/utils"
 import type { Category } from "@/types/category"
@@ -21,7 +22,7 @@ import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { useMemo, useState } from "react"
 import { useIncomes } from "../hooks/use-incomes"
-import { INCOME_TYPE_LABELS, getIncomeColumns } from "./incomes-columns"
+import { getIncomeColumns } from "./incomes-columns"
 
 export function IncomesTable({ categories }: { categories: Category[] }) {
   const { data: incomes = [] } = useIncomes()
@@ -103,9 +104,9 @@ export function IncomesTable({ categories }: { categories: Category[] }) {
               avoidCollisions={false}
             >
               <SelectItem value="all">Todos os tipos</SelectItem>
-              {Object.entries(INCOME_TYPE_LABELS).map(([value, label]) => (
+              {Object.entries(INCOME_TYPE_META).map(([value, meta]) => (
                 <SelectItem key={value} value={value}>
-                  {label}
+                  {meta.label}
                 </SelectItem>
               ))}
             </SelectContent>

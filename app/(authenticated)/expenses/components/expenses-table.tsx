@@ -14,6 +14,7 @@ import {
 import { TableCell, TableRow } from "@/components/ui/table"
 import { getMonthlyImpactInPeriod, isActiveInPeriod } from "@/lib/expense"
 import { monthToPeriod } from "@/lib/month-period"
+import { EXPENSE_TYPE_META } from "@/lib/transaction-labels"
 import { useMonthStore } from "@/lib/stores/month-store"
 import { formatCurrency } from "@/lib/utils"
 import type { Category } from "@/types/category"
@@ -21,7 +22,7 @@ import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { useMemo, useState } from "react"
 import { useExpenses } from "../hooks/use-expenses"
-import { EXPENSE_TYPE_LABELS, getExpenseColumns } from "./expenses-columns"
+import { getExpenseColumns } from "./expenses-columns"
 
 export function ExpensesTable({ categories }: { categories: Category[] }) {
   const { data: expenses = [] } = useExpenses()
@@ -103,9 +104,9 @@ export function ExpensesTable({ categories }: { categories: Category[] }) {
               avoidCollisions={false}
             >
               <SelectItem value="all">Todos os tipos</SelectItem>
-              {Object.entries(EXPENSE_TYPE_LABELS).map(([value, label]) => (
+              {Object.entries(EXPENSE_TYPE_META).map(([value, meta]) => (
                 <SelectItem key={value} value={value}>
-                  {label}
+                  {meta.label}
                 </SelectItem>
               ))}
             </SelectContent>

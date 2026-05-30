@@ -27,6 +27,7 @@ import {
   type ExpenseCreateFormData,
   type ExpenseCreateFormInput,
 } from "@/lib/schemas/expense"
+import { EXPENSE_TYPE_META } from "@/lib/transaction-labels"
 import type { Category } from "@/types/category"
 import { ExpenseCreate, ExpenseRead, ExpenseUpdate } from "@/types/expense"
 
@@ -35,28 +36,6 @@ type Props = {
   categories: Category[]
   defaultValues: ExpenseCreateFormInput
   onSubmit: (data: ExpenseCreateFormData) => Promise<void>
-}
-
-const EXPENSE_TYPE_LABELS: Record<
-  ExpenseCreateFormData["expense_type"],
-  { label: string; hint: string }
-> = {
-  one_time: {
-    label: "Avulso",
-    hint: "Uma única ocorrência em uma data específica.",
-  },
-  fixed: {
-    label: "Fixo",
-    hint: "Recorrência mensal não cobrada automáticamente (ex.: aluguel, aula de música).",
-  },
-  automatic_debit: {
-    label: "Débito automático",
-    hint: "Recorrência mensal debitada automaticamente.",
-  },
-  installment: {
-    label: "Parcelado",
-    hint: "Compra única dividida em N parcelas mensais.",
-  },
 }
 
 function emptyToNull(value: string | undefined) {
@@ -292,7 +271,7 @@ export default function ExpenseForm({
                   side="bottom"
                   avoidCollisions={false}
                 >
-                  {Object.entries(EXPENSE_TYPE_LABELS).map(([value, meta]) => (
+                  {Object.entries(EXPENSE_TYPE_META).map(([value, meta]) => (
                     <SelectItem key={value} value={value}>
                       {meta.label}
                     </SelectItem>
@@ -300,7 +279,7 @@ export default function ExpenseForm({
                 </SelectContent>
               </Select>
               <FieldDescription>
-                {EXPENSE_TYPE_LABELS[field.value].hint}
+                {EXPENSE_TYPE_META[field.value].hint}
               </FieldDescription>
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>

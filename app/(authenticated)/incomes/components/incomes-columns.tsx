@@ -2,6 +2,7 @@
 
 import { Badge } from "@/components/ui/badge"
 import { DataTableSortHeader } from "@/components/ui/data-table"
+import { INCOME_TYPE_META } from "@/lib/transaction-labels"
 import { formatCurrency } from "@/lib/utils"
 import type { Category } from "@/types/category"
 import type { IncomeRead } from "@/types/income"
@@ -9,11 +10,6 @@ import type { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { IncomeRowActions } from "./income-row-actions"
-
-export const INCOME_TYPE_LABELS: Record<IncomeRead["income_type"], string> = {
-  one_time: "Avulsa",
-  recurring: "Recorrente",
-}
 
 function formatMonth(iso: string) {
   return format(new Date(`${iso}T00:00:00`), "MMM/yy", { locale: ptBR })
@@ -38,7 +34,7 @@ export function getIncomeColumns(
       header: ({ column }) => <DataTableSortHeader column={column} label="Tipo" />,
       cell: ({ row }) => (
         <Badge variant="secondary">
-          {INCOME_TYPE_LABELS[row.original.income_type]}
+          {INCOME_TYPE_META[row.original.income_type].label}
         </Badge>
       ),
       filterFn: "equals",
