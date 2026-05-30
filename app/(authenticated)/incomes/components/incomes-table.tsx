@@ -1,7 +1,9 @@
 "use client"
 
+import { Checkbox } from "@/components/ui/checkbox"
 import { DataTable } from "@/components/ui/data-table"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import {
   Select,
   SelectContent,
@@ -17,7 +19,7 @@ import { formatCurrency } from "@/lib/utils"
 import type { Category } from "@/types/category"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import { useIncomes } from "../hooks/use-incomes"
 import { INCOME_TYPE_LABELS, getIncomeColumns } from "./incomes-columns"
 
@@ -25,6 +27,7 @@ export function IncomesTable({ categories }: { categories: Category[] }) {
   const { data: incomes = [] } = useIncomes()
   const year = useMonthStore((state) => state.year)
   const month = useMonthStore((state) => state.month)
+  const [onlyActive, setOnlyActive] = useState(true)
 
   const incomeCategories = useMemo(
     () => categories.filter((category) => category.kind === "income"),
@@ -43,6 +46,23 @@ export function IncomesTable({ categories }: { categories: Category[] }) {
     [categoryName, incomeCategories]
   )
 
+  const { period_start, period_end } = useMemo(
+    () => monthToPeriod({ year, month }),
+    [year, month]
+  )
+
+  const rows = useMemo(() => {
+    if (!onlyActive) return incomes
+    return incomes.filter((income) =>
+      isActiveInPeriod(
+        income.impact_start_date,
+        income.impact_end_date,
+        period_start!,
+        period_end!
+      )
+    )
+  }, [incomes, onlyActive, period_start, period_end])
+
   const monthLabel = format(new Date(year, month - 1, 1), "MMM/yy", {
     locale: ptBR,
   })
@@ -50,7 +70,7 @@ export function IncomesTable({ categories }: { categories: Category[] }) {
   return (
     <DataTable
       columns={columns}
-      data={incomes}
+      data={rows}
       emptyMessage="Nenhuma receita cadastrada."
       toolbar={(table) => (
         <div className="flex flex-wrap items-center gap-2">
@@ -64,7 +84,8 @@ export function IncomesTable({ categories }: { categories: Category[] }) {
           />
           <Select
             value={
-              (table.getColumn("income_type")?.getFilterValue() as string) ?? "all"
+              (table.getColumn("income_type")?.getFilterValue() as string) ??
+              "all"
             }
             onValueChange={(value) =>
               table
@@ -91,7 +112,8 @@ export function IncomesTable({ categories }: { categories: Category[] }) {
           </Select>
           <Select
             value={
-              (table.getColumn("category_id")?.getFilterValue() as string) ?? "all"
+              (table.getColumn("category_id")?.getFilterValue() as string) ??
+              "all"
             }
             onValueChange={(value) =>
               table
@@ -116,10 +138,17 @@ export function IncomesTable({ categories }: { categories: Category[] }) {
               ))}
             </SelectContent>
           </Select>
+          <Label htmlFor="incomes-only-active" className="cursor-pointer">
+            <Checkbox
+              id="incomes-only-active"
+              checked={onlyActive}
+              onCheckedChange={(checked) => setOnlyActive(checked === true)}
+            />
+            Somente vigentes em {monthLabel}
+          </Label>
         </div>
       )}
       footer={(table) => {
-        const { period_start, period_end } = monthToPeriod({ year, month })
         const total = table.getFilteredRowModel().rows.reduce((sum, row) => {
           const income = row.original
           return isActiveInPeriod(
