@@ -2,7 +2,7 @@
 
 import { DataTableSortHeader } from "@/components/ui/data-table"
 import { Badge } from "@/components/ui/badge"
-import { getCurrentInstallment, getMonthlyImpact } from "@/lib/expense"
+import { getCurrentInstallment, getMonthlyImpactInPeriod } from "@/lib/expense"
 import { formatCurrency } from "@/lib/utils"
 import type { Category } from "@/types/category"
 import type { ExpenseRead } from "@/types/expense"
@@ -106,13 +106,13 @@ export function getExpenseColumns(
     },
     {
       id: "monthly_impact",
-      accessorFn: (row) => getMonthlyImpact(row),
+      accessorFn: (row) => getMonthlyImpactInPeriod(row, periodStart),
       header: ({ column }) => (
         <DataTableSortHeader column={column} label="Impacto/mês" />
       ),
       cell: ({ row }) => (
         <span className="font-mono">
-          {formatCurrency(getMonthlyImpact(row.original))}
+          {formatCurrency(getMonthlyImpactInPeriod(row.original, periodStart))}
         </span>
       ),
       sortingFn: "basic",

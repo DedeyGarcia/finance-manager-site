@@ -1,4 +1,5 @@
 import { getMonthlyImpact, type MonthlyImpactInput } from "@/lib/expense"
+import { truncateToCents } from "@/lib/utils"
 import type { Dashboard } from "@/types/dashboard"
 import type { ExpenseRead } from "@/types/expense"
 import type { IncomeRead } from "@/types/income"
@@ -6,7 +7,9 @@ import type { IncomeRead } from "@/types/income"
 type Sign = 1 | -1
 
 function formatMoney(value: number) {
-  return value.toFixed(2)
+  // Trunca nos centavos (mesma regra do formatCurrency) para a prévia otimista
+  // ficar consistente com o que será exibido; reconciliado no invalidate.
+  return truncateToCents(value).toFixed(2)
 }
 
 /**

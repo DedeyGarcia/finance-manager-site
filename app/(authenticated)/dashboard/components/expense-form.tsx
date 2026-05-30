@@ -46,7 +46,7 @@ const EXPENSE_TYPE_LABELS: Record<
     hint: "Uma única ocorrência em uma data específica.",
   },
   fixed: {
-    label: "Fixa",
+    label: "Fixo",
     hint: "Recorrência mensal não cobrada automáticamente (ex.: aluguel, aula de música).",
   },
   automatic_debit: {
@@ -54,7 +54,7 @@ const EXPENSE_TYPE_LABELS: Record<
     hint: "Recorrência mensal debitada automaticamente.",
   },
   installment: {
-    label: "Parcelada",
+    label: "Parcelado",
     hint: "Compra única dividida em N parcelas mensais.",
   },
 }

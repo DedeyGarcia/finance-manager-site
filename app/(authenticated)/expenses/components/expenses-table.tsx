@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { TableCell, TableRow } from "@/components/ui/table"
-import { getMonthlyImpact, isActiveInPeriod } from "@/lib/expense"
+import { getMonthlyImpactInPeriod, isActiveInPeriod } from "@/lib/expense"
 import { monthToPeriod } from "@/lib/month-period"
 import { useMonthStore } from "@/lib/stores/month-store"
 import { formatCurrency } from "@/lib/utils"
@@ -157,7 +157,7 @@ export function ExpensesTable({ categories }: { categories: Category[] }) {
             period_start!,
             period_end!
           )
-            ? sum + getMonthlyImpact(expense)
+            ? sum + getMonthlyImpactInPeriod(expense, period_start!)
             : sum
         }, 0)
 
