@@ -28,7 +28,7 @@ export default function LayoutHeader({ categories }: Props) {
   return (
     <div className="flex flex-row items-center border-b px-4 py-4 sm:px-8">
       <SidebarTrigger />
-      <div className="ml-2">
+      <div className="sm:ml-2">
         <MonthSelector />
       </div>
       <DropdownMenu>

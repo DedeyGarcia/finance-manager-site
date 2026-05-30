@@ -58,7 +58,7 @@ export default function MonthSelector() {
   }
 
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex items-center gap-0 sm:gap-1">
       <Button
         type="button"
         variant="ghost"
@@ -74,7 +74,7 @@ export default function MonthSelector() {
           <Button
             type="button"
             variant="ghost"
-            className="font-medium sm:min-w-36"
+            className="px-1 font-medium sm:min-w-36 sm:px-2.5"
           >
             <span className="sm:hidden">{monthLabel(year, month, "LLL yyyy")}</span>
             <span className="hidden sm:inline">
