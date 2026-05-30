@@ -11,32 +11,40 @@ import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { ExpenseRowActions } from "./expense-row-actions"
 
-export const EXPENSE_TYPE_LABELS: Record<ExpenseRead["expense_type"], string> = {
-  one_time: "Avulso",
-  fixed: "Fixo",
-  automatic_debit: "Débito automático",
-  installment: "Parcela",
-}
+export const EXPENSE_TYPE_LABELS: Record<ExpenseRead["expense_type"], string> =
+  {
+    one_time: "Avulso",
+    fixed: "Fixo",
+    automatic_debit: "Débito automático",
+    installment: "Parcela",
+  }
 
 function formatMonth(iso: string) {
   return format(new Date(`${iso}T00:00:00`), "MMM/yy", { locale: ptBR })
 }
 
 function formatDate(iso: string | null) {
-  return iso ? format(new Date(`${iso}T00:00:00`), "dd/MM/yy", { locale: ptBR }) : "—"
+  return iso
+    ? format(new Date(`${iso}T00:00:00`), "dd/MM/yy", { locale: ptBR })
+    : "—"
 }
 
 function formatVigencia(start: string, end: string | null) {
-  return end ? `${formatMonth(start)} → ${formatMonth(end)}` : `${formatMonth(start)} → ∞`
+  return end
+    ? `${formatMonth(start)} → ${formatMonth(end)}`
+    : `${formatMonth(start)} → ∞`
 }
 
-/** Rótulo de parcela para a coluna Impacto/mês. */
-function installmentLabel(expense: ExpenseRead, periodStart: string): string | null {
+function installmentLabel(
+  expense: ExpenseRead,
+  periodStart: string
+): string | null {
   if (expense.expense_type !== "installment") return null
   const total = expense.installments_count
   const current = getCurrentInstallment(expense.impact_start_date, periodStart)
-  // Fora da vigência do parcelamento mostra só o total (ex: "12×").
-  return current >= 1 && current <= total ? `${current}/${total}` : `${total}×`
+  if (current > total) return "Quitada"
+  if (current < 1) return `${total}×`
+  return `${current}/${total}`
 }
 
 export function getExpenseColumns(
@@ -48,16 +56,28 @@ export function getExpenseColumns(
     {
       accessorKey: "title",
       header: "Título",
-      cell: ({ row }) => <span className="font-medium">{row.original.title}</span>,
+      cell: ({ row }) => (
+        <span className="font-medium">{row.original.title}</span>
+      ),
     },
     {
       accessorKey: "expense_type",
-      header: ({ column }) => <DataTableSortHeader column={column} label="Tipo" />,
-      cell: ({ row }) => (
-        <Badge variant="secondary">
-          {EXPENSE_TYPE_LABELS[row.original.expense_type]}
-        </Badge>
+      header: ({ column }) => (
+        <DataTableSortHeader column={column} label="Tipo" />
       ),
+      cell: ({ row }) => {
+        const installment = installmentLabel(row.original, periodStart)
+        return (
+          <Badge variant="secondary">
+            {EXPENSE_TYPE_LABELS[row.original.expense_type]}
+            {installment && (
+              <span className="font-mono text-muted-foreground">
+                · {installment}
+              </span>
+            )}
+          </Badge>
+        )
+      },
       filterFn: "equals",
     },
     {
@@ -90,21 +110,11 @@ export function getExpenseColumns(
       header: ({ column }) => (
         <DataTableSortHeader column={column} label="Impacto/mês" />
       ),
-      cell: ({ row }) => {
-        const installment = installmentLabel(row.original, periodStart)
-        return (
-          <div className="flex items-baseline gap-1.5">
-            <span className="font-mono">
-              {formatCurrency(getMonthlyImpact(row.original))}
-            </span>
-            {installment && (
-              <span className="font-mono text-xs text-muted-foreground">
-                {installment}
-              </span>
-            )}
-          </div>
-        )
-      },
+      cell: ({ row }) => (
+        <span className="font-mono">
+          {formatCurrency(getMonthlyImpact(row.original))}
+        </span>
+      ),
       sortingFn: "basic",
     },
     {
@@ -113,7 +123,10 @@ export function getExpenseColumns(
         <DataTableSortHeader column={column} label="Vigência" />
       ),
       cell: ({ row }) =>
-        formatVigencia(row.original.impact_start_date, row.original.impact_end_date),
+        formatVigencia(
+          row.original.impact_start_date,
+          row.original.impact_end_date
+        ),
     },
     {
       id: "actions",
